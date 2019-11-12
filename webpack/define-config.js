@@ -8,10 +8,15 @@ const PROJECTS = env => [
     id: env.PROJECT,
     publicUri: env.PUBLIC_URL,
   },
+  // You only need to include extra projects in this array
+  // if you wish to switch between projects at runtime,
+  // or fetch data from another project
+  // ˅˅˅˅˅˅˅˅
   {
     id: 'mock',
     publicUri: 'mock.ludlow.ac.uk',
   },
+  // ˄˄˄˄˄˄˄˄
 ];
 
 // any paths to proxy back to the classic IIS servers?
