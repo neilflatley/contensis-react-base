@@ -69,7 +69,6 @@
     "core-js": "^3.1.3",
     "cross-env": "5.2.0",
     "css-loader": "^3.0.0",
-    "dotenv": "^8.1.0",
     "eslint": "^6.5.1",
     "eslint-config-prettier": "^6.4.0",
     "eslint-import-resolver-webpack": "^0.11.1",
@@ -101,7 +100,7 @@
     "webpack-merge": "4.2.1",
     "webpack-node-externals": "1.7.2",
     "webpack-shell-plugin": "^0.5.0",
-    "zengenti-buildstartup-package": "^0.0.2"
+    "zengenti-buildstartup-package": "^0.0.4"
   },
   "dependencies": {
     "contensis-delivery-api": "^1.1.0",
