@@ -101,7 +101,7 @@
     "webpack-merge": "4.2.1",
     "webpack-node-externals": "1.7.2",
     "webpack-shell-plugin": "^0.5.0",
-    "zengenti-buildstartup-package": "0.0.1"
+    "zengenti-buildstartup-package": "^0.0.2"
   },
   "dependencies": {
     "contensis-delivery-api": "^1.1.0",
