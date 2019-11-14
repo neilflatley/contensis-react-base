@@ -37,12 +37,15 @@ const pickProject = (hostname, query) => {
     } else {
       // check for internal and external hostnames, prefixed with the projectId
       if (
-        hostname.includes(`${p.id}-${alias}.cloud.contensis.com`) ||
-        hostname.includes(`${p.id}.${alias}.contensis.cloud`)
+        hostname.includes(
+          `${p.id.toLowerCase()}-${alias}.cloud.contensis.com`
+        ) ||
+        hostname.includes(`${p.id.toLowerCase()}.${alias}.contensis.cloud`)
       )
         project = p.id;
     }
   });
+
   return project;
 };
 
