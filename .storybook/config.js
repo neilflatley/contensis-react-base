@@ -1,6 +1,5 @@
-import { configure, addDecorator } from '@storybook/react';
+import { configure, addDecorator, addParameters } from '@storybook/react';
 import { withKnobs } from '@storybook/addon-knobs';
-import { withOptions } from '@storybook/addon-options';
 import { withTests } from '@storybook/addon-jest';
 
 import results from '../.jest-test-results.json';
@@ -12,14 +11,22 @@ addDecorator(
     results,
   })
 );
-addDecorator(
-  withOptions({
-    name: 'Storybook Project Name',
-    addonPanelInRight: false,
+
+addParameters({
+  options: {
+    isFullscreen: false,
+    showNav: true,
+    showPanel: true,
+    panelPosition: 'right',
+    hierarchySeparator: /\/|\./,
     hierarchyRootSeparator: /\|/,
-    sortStoriesByKind: true,
-  })
-);
+    sidebarAnimations: true,
+    enableShortcuts: true,
+    isToolshown: true,
+    theme: undefined,
+    storySort: undefined,
+  },
+});
 
 addDecorator(withKnobs, {
   knobs: {
