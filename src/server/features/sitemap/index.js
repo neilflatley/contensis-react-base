@@ -1,9 +1,8 @@
 import generateSitemap from './sitemap';
-import pickProject from '~/core/util/pickProject';
 
 const sitemap = app => {
   app.get('/sitemap.xml', (req, res) => {
-    const project = pickProject(req.hostname, req.query);
+    const project = PROJECTS[0].id; /* global PROJECTS */
     generateSitemap(project)
       .then(sitemap => {
         res.writeHead(200, {
