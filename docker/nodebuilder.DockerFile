@@ -1,4 +1,3 @@
-ARG gitlab_ci_token
 FROM node:8 as builder
 # The following prevents errors when cwebp is installing.
 RUN apt-get update
@@ -8,7 +7,7 @@ COPY package.json .
 COPY package-lock.json .
 COPY patches /usr/src/app/patches
 RUN npm install -g mocha
-RUN git config --global url."https://gitlab-ci-token:$gitlab_ci_token@gitlab.zengenti.com/".insteadOf https://gitlab.zengenti.com/
+RUN git config --global url."https://gitlab+deploy-token-2:xAprxEv22QDzmu6UtKUb@gitlab.zengenti.com/".insteadOf https://gitlab.zengenti.com/
 RUN npm install --loglevel error
 RUN npm run postinstall
 COPY config /usr/src/app/config
