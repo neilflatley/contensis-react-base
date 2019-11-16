@@ -1,3 +1,4 @@
+ARG CI_JOB_TOKEN
 FROM node:8 as builder
 # The following prevents errors when cwebp is installing.
 RUN apt-get update
