@@ -113,6 +113,6 @@
     "react-leaflet": "^2.4.0",
     "sitemap": "^4.1.1",
     "url-loader": "^2.0.0",
-    "zengenti-isomorphic-base": "git+ssh://git@gitlab.zengenti.com:ps-projects/zengenti-base/zen-base.git#isomorphic-base"
+    "zengenti-isomorphic-base": "git+https://gitlab.zengenti.com/ps-projects/zengenti-base/zen-base.git#isomorphic-base"
   }
 }
