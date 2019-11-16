@@ -28,7 +28,7 @@ build-latest-code:
   script:
     - docker pull $APP_BUILDER_IMAGE:latest || true
     - echo "{\"commitRef\":\"$CI_COMMIT_SHA\",\"pipelineIID\":\"$CI_PIPELINE_IID\",\"pipelineUrl\":\"$CI_PIPELINE_URL\",\"buildNo\":\"$CI_PIPELINE_ID\",\"branchName\":\"$CI_COMMIT_REF_NAME\",\"registryImage\":\"$CI_REGISTRY_IMAGE\"}" > version.json
-    - docker build --force-rm --cache-from $APP_BUILDER_IMAGE:latest -t $APP_BUILDER_IMAGE:latest --build-arg CI_JOB_TOKEN=$CI_JOB_TOKEN -f docker/nodebuilder.DockerFile .
+    - docker build --force-rm --cache-from $APP_BUILDER_IMAGE:latest -t $APP_BUILDER_IMAGE:latest --build-arg gitlab_ci_token=$CI_JOB_TOKEN -f docker/nodebuilder.DockerFile .
     - docker push $APP_BUILDER_IMAGE:latest
     - docker pull $APP_IMAGE:latest || true
     - docker build --force-rm --cache-from $APP_IMAGE:latest -t $APP_IMAGE:latest --build-arg builder_image=$APP_BUILDER_IMAGE:latest -f docker/ci-build.DockerFile .
