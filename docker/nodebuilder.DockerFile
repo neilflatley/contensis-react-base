@@ -1,7 +1,7 @@
 FROM node:8 as builder
 # The following prevents errors when cwebp is installing.
 RUN apt-get update
-RUN apt-get install libglu1 git openssh -y
+RUN apt-get install libglu1 git -y
 WORKDIR /usr/src/app
 COPY package.json .
 COPY package-lock.json .
