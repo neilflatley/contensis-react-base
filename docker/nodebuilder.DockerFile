@@ -7,6 +7,7 @@ COPY package.json .
 COPY package-lock.json .
 COPY patches /usr/src/app/patches
 RUN npm install -g mocha
+RUN git config --global url."https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com/".insteadOf https://gitlab.com/
 RUN npm install --loglevel error
 RUN npm run postinstall
 COPY config /usr/src/app/config

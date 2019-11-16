@@ -19,7 +19,6 @@ services:
 
 before_script:
   - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN gitlab.zengenti.com:4567
-  - git config --global url."https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com/".insteadOf https://gitlab.com/
 
 build-latest-code:
   stage: latest-build
