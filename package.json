@@ -12,7 +12,7 @@
     "start": "cross-env NODE_ENV=development webpack-dev-server --config webpack/webpack.config.dev.js",
     "build": "cross-env NODE_ENV=production parallel-webpack --config webpack/webpack.config.prod.js",
     "server": "node dist/start.js",
-    "dev:server": "nodemon --exec cross-env NODE_ENV=test babel-node --inspect=9229 src/server/server.js",
+    "dev:server": "nodemon --exec cross-env NODE_ENV=test babel-node --inspect=9229 src/server/debug.js",
     "build:server": "npm run build && npm run server",
     "build:dev:server": "npm run build && npm run dev:server",
     "postinstall": "patch-package",
