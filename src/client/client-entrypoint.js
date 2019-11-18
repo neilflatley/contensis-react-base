@@ -1,14 +1,15 @@
 import loadPolyfills from './loadPolyFills';
-// import ClientApp from './client'; // the entry point for the rest of the app
+// the entry point for the rest of the app
 import ClientApp from 'zengenti-isomorphic-base/client';
 
-import ContentTypeMappings from '~/core/routes/ContentTypeMappings';
-import StaticRoutes from '~/core/routes/StaticRoutes';
+import routes from '~/core/routes';
+import withReducers from '~/core/redux/reducers';
+import withSagas from '~/core/redux/sagas';
 
 const config = {
-  routes: { ContentTypeMappings, StaticRoutes },
-  withReducers: {},
-  withSagas: [],
+  routes,
+  withReducers,
+  withSagas,
 };
 
 if (process.env.NODE_ENV == 'development') {

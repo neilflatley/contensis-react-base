@@ -1,18 +1,17 @@
 import ZengentiAppServer from 'zengenti-isomorphic-base';
-import ContentTypeMappings from '~/core/routes/ContentTypeMappings';
-import StaticRoutes from '~/core/routes/StaticRoutes';
-import ServerFeatures from './features/configure';
 
-// Feature reducers
-// import { reducer as FormsReducer } from 'zengenti-forms-package';
-// import { reducer as AlertReducer } from '~/features/siteAlert';
+import routes from '~/core/routes';
+import withReducers from '~/core/redux/reducers';
+import withSagas from '~/core/redux/sagas';
+
+import ServerFeatures from './features/configure';
 
 ZengentiAppServer.start(
   ZengentiAppServer.ReactApp,
   {
-    routes: { ContentTypeMappings, StaticRoutes },
-    withReducers: {},
-    withSagas: [],
+    routes,
+    withReducers,
+    withSagas,
     // The HTML templates we will render the app into
     templates: {
       html: 'dist/index.html',
