@@ -1,7 +1,6 @@
 import { Op, Query } from 'contensis-delivery-api';
 import { createSitemap } from 'sitemap';
 import { cachedSearch } from '~/core/util/ContensisDeliveryApi';
-import { getUrlFromNavigationSettings } from '~/core/util/navHelper';
 import { dynamicSort } from '~/core/util/helpers';
 
 /* global PUBLIC_URI */
@@ -71,6 +70,16 @@ const getEntries = async (pageIndex, pageSize, project) => {
   } catch (error) {
     throw new Error(JSON.stringify(error));
   }
+};
+
+const getUrlFromNavigationSettings = entry => {
+  let path = '';
+  if (entry.navigationSettings && entry.navigationSettings.parent) {
+    path += getUrlFromNavigationSettings(entry.navigationSettings.parent);
+  } else {
+    return '';
+  }
+  return `${path}/${entry.sys.slug}`;
 };
 
 const mapEntryToSitemapUrl = entry => {
