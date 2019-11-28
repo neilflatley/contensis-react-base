@@ -35,7 +35,7 @@ module.exports = {
           path.resolve('src'),
           // These dependencies have es6 syntax which ie11 doesn't like.
           path.resolve('node_modules/contensis-delivery-api'),
-          path.resolve('node_modules/zengenti-appserver-package'),
+          path.resolve('node_modules/zengenti-isomorphic-base'),
         ],
         use: {
           loader: 'babel-loader',
