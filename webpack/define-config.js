@@ -22,11 +22,11 @@ const PROJECTS = env => [
 ];
 
 // any paths to proxy back to the classic IIS servers?
-const REVERSE_PROXY_PATHS = [
+const REVERSE_PROXY_PATHS = Object([
   '/image-library/*',
   '/video-library/*',
   '/asset-library/*',
-];
+]);
 
 const ALLOWED_GROUPS = {
   // 1 is Everyone, -1 is false (no security)
