@@ -1,6 +1,6 @@
 import loadPolyfills from './loadPolyFills';
 // the entry point for the rest of the app
-import ClientApp from 'zengenti-isomorphic-base/client';
+import ClientApp, { ReactApp } from 'zengenti-isomorphic-base/client';
 
 import routes from '~/core/routes';
 import withReducers from '~/core/redux/reducers';
@@ -15,7 +15,7 @@ const config = {
 };
 
 if (process.env.NODE_ENV == 'development') {
-  new ClientApp(config);
+  new ClientApp(ReactApp, config);
 } else {
-  loadPolyfills().then(new ClientApp(config));
+  loadPolyfills().then(new ClientApp(ReactApp, config));
 }
