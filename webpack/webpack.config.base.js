@@ -1,7 +1,13 @@
 const path = require('path');
+const fs = require('fs');
 const webpack = require('webpack');
 const defineConfig = require('./define-config-webpack').base;
 const ASSET_PATH = '/';
+
+const reactPath = 'node_modules/zengenti-isomorphic-base/node_modules/react';
+const react = fs.existsSync(reactPath)
+  ? path.resolve(reactPath)
+  : path.resolve('node_modules/react');
 
 module.exports = {
   output: {
@@ -11,6 +17,8 @@ module.exports = {
     extensions: ['.js', '.jsx', '.json'],
     alias: {
       '~': path.resolve(__dirname, '../src/app'),
+      react,
+      'react-dom': '@hot-loader/react-dom',
     },
   },
   module: {
