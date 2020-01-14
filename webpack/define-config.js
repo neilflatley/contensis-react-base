@@ -80,4 +80,4 @@ const production = {
 module.exports.build =
   process.env.NODE_ENV == 'production' ? production : development;
 
-module.exports.PROJECTS = PROJECTS;
+module.exports.projects = PROJECTS;
