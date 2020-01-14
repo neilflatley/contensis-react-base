@@ -6,7 +6,12 @@ export default {
     // eslint-disable-next-line no-console
     await console.log('onRouteLoadEvent', path);
   },
-  onRouteLoaded: function* onRouteLoaded(path) {
+  onRouteLoaded: function* onRouteLoaded({
+    path,
+    // entry,
+    // location,
+    // staticRoute,
+  }) {
     // eslint-disable-next-line no-console
     yield console.log('onRouteLoadedEvent', path);
 
