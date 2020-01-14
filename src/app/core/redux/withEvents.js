@@ -2,9 +2,13 @@
 // import { GET_SITE_CONFIG } from '~/core/redux/siteConfig/types';
 
 export default {
-  onRouteLoad: async path => {
+  onRouteLoad: function* onRouteLoad({
+    path,
+    // location,
+    // staticRoute,
+  }) {
     // eslint-disable-next-line no-console
-    await console.log('onRouteLoadEvent', path);
+    yield console.log('onRouteLoadEvent', path);
   },
   onRouteLoaded: function* onRouteLoaded({
     path,
@@ -15,6 +19,10 @@ export default {
     // eslint-disable-next-line no-console
     yield console.log('onRouteLoadedEvent', path);
 
-    // yield put({ type: GET_SITE_CONFIG });
+    // const siteConfig = yield select(hasSiteConfig);
+
+    // if (!siteConfig) {
+    //   yield put({ type: GET_SITE_CONFIG });
+    // }
   },
 };
