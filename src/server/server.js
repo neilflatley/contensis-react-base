@@ -3,6 +3,7 @@ import ZengentiAppServer from 'zengenti-isomorphic-base';
 import routes from '~/core/routes';
 import withReducers from '~/core/redux/reducers';
 import withSagas from '~/core/redux/sagas';
+import withEvents from '~/core/redux/withEvents';
 
 import ServerFeatures from './features/configure';
 
@@ -12,6 +13,7 @@ ZengentiAppServer.start(
     routes,
     withReducers,
     withSagas,
+    withEvents,
     // The HTML templates we will render the app into
     templates: {
       html: 'dist/index.html',
