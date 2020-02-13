@@ -1,5 +1,13 @@
 # Configuration and Build :gear: :building_construction:
 
+## TLDR:
+
+- Add `.env` or `.env.*` file(s) to your project root
+- `npm run build` - generates a universal client bundle
+- `npm --start={projectId}.{alias} run-script server` - to start production server targeted to a specific ".env" configuration (and write out a new default client bundle to serve later)
+- `[CTRL+C]` - quit the server
+- `npm --env=development run-script dev:server` - start the server-side debug session, targeting any code executed server-side to the appropriate `.env*` file.
+
 ## Configuration
 
 ### .env files :lizard:
@@ -10,7 +18,7 @@ You may create other files for example `.env.development` that contain the same 
 
 To activate an alternative build/startup config (`.env.whatever`) you need to set environment variable `env` to the same value as your .env file's .{suffix}, you can do this in CLI and combine this with an npm script that already exists e.g. `npm --env=development run-script start` or `npm --env=development run-script build`, or you can add additional npm scripts to `package.json` to do the same thing if you prefer.
 
-Setting the `env` variable when starting your npm script will decide which environment config is used for that build. Don't worry if you have built while passing this variable, the build scripts and bundles are now environment-agnostic. The built bundles should be universal, and separate start scripts will be built for each environment. i.e. you do not need to do separate builds for live / dev deployments, but you do need to call the correct /server/start.* script to start the built app connected to that environment.
+Setting the `env` variable when starting your npm script will decide which environment config is used for that build. Don't worry if you have built while passing this variable, the build scripts and bundles are now environment-agnostic. The built bundles should be universal, and separate start scripts will be built for each environment. i.e. you do not need to do separate builds for live / dev deployments, but you do need to call the correct /server/start.\* script to start the built app connected to that environment.
 
 ### Project config (Babel) :space_invader:
 
@@ -89,10 +97,3 @@ To work around not having start scripts we can target a client build and server 
 For example we wish to connect our complete server-side debug session to `zen-base-dev` cms, `mock` project we would run `npm --start=mock.zen-base-dev run-script build:server` - this will generate a universal build, and start the server pointing at zen-base-dev, mock project and write out a default client bundle configured for that environment.
 
 Then we can quit this server session and run our `dev:server` script that is targeted to one of our `.env*` files: `npm --env=development run-script dev:server`, because we are running this from source code in a non-production NODE_ENV, we switch back to supplying our environment as `--env={.env-file-suffix}` variable rather than `--start={project}.{cms-alias}` variable.
-
-To recap:
-
-- `npm run build` - generates a universal client bundle
-- `npm --start=mock.zen-base-dev run-script server` - to write out a new default client bundle to serve later
-- `[CTRL+C]` - quit the server
-- `npm --env=development run-script dev:server` - start the server-side debug session, targeting any code executed server-side to the appropriate `.env*` file.
