@@ -10,6 +10,7 @@ const FriendlyErrorsWebpackPlugin = require('friendly-errors-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const ImageminPlugin = require('imagemin-webpack-plugin').default;
 const WebpackShellPlugin = require('webpack-shell-plugin');
+const Visualizer = require('webpack-visualizer-plugin');
 
 const BASE_CONFIG = require('./webpack.config.base');
 const defineConfigProd = require('./define-config-webpack').prod;
@@ -121,6 +122,7 @@ const CLIENT_PROD_CONFIG = {
         optimizationLevel: 9,
       },
     }),
+    new Visualizer({ filename: './stats/client-stats.html' }),
   ],
 };
 
@@ -151,6 +153,7 @@ const SERVER_PROD_CONFIG = {
         'node node_modules/zengenti-buildstartup-package',
       ],
     }),
+    new Visualizer({ filename: './stats/server-stats.html' }),
   ],
 };
 

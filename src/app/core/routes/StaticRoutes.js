@@ -15,7 +15,8 @@ export default [
     path: '/404',
     exact: true,
     component: Loadable({
-      loader: () => import('~/pages/NotFound'),
+      loader: () =>
+        import(/* webpackChunkName: "notfound" */ '~/pages/NotFound'),
       loading: Loading,
     }),
   },
@@ -23,7 +24,8 @@ export default [
     path: '/zenInfo',
     exact: true,
     component: Loadable({
-      loader: () => import('~/pages/VersionInfo'),
+      loader: () =>
+        import(/* webpackChunkName: "zeninfo" */ '~/pages/VersionInfo'),
       loading: Loading,
     }),
   },
