@@ -1,4 +1,5 @@
-import loadPolyfills from './loadPolyFills';
+import 'core-js';
+
 // the entry point for the rest of the app
 import ClientApp, { ReactApp } from 'zengenti-isomorphic-base/client';
 
@@ -14,8 +15,4 @@ const config = {
   withEvents,
 };
 
-if (process.env.NODE_ENV == 'development') {
-  new ClientApp(ReactApp, config);
-} else {
-  loadPolyfills().then(new ClientApp(ReactApp, config));
-}
+new ClientApp(ReactApp, config);

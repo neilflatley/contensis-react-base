@@ -9,6 +9,11 @@ const appConfig = require('./define-config').build;
 const defineConfigDev = require('./define-config-webpack').dev;
 
 const BASE_CONFIG = require('./webpack.config.base');
+const BABEL_LEGACY = require('../babel.config.legacy');
+const BABEL_MODERN = require('../babel.config.modern');
+
+const target = process.env.BROWSERSLIST_ENV;
+const isModern = target === 'modern';
 
 const { SERVERS, REVERSE_PROXY_PATHS, PROXY_DELIVERY_API } = appConfig;
 
@@ -57,6 +62,7 @@ const CLIENT_DEV_CONFIG = {
         exclude: /node_modules/,
         use: {
           loader: 'babel-loader',
+          options: isModern ? BABEL_MODERN : BABEL_LEGACY,
         },
       },
       {
