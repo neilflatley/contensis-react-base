@@ -61,3 +61,89 @@ The package handles things such as:
 - Create pages in the `/src/app/pages/` folder to set your page layouts and load your components
 - Define routes in your application, there are 'Static routes' and 'Content type mappings' which tell the application what pages are to be loaded when certain routes / content type entries are loaded
 - Import components using the import aliases e.g. `~/pages/MyPage` avoid importing components like `/src/app/pages/MyPage` or `../../../pages/MyPage`
+
+# Domains
+
+## {Project Name}
+
+### [live.{alias}.contensis.cloud](http://live.{alias}.contensis.cloud)
+
+| CMS        | Project | Data      | Branch   | Version     |
+| ---------- | ------- | --------- | -------- | ----------- |
+| Production | website | Published | `master` | `release-*` |
+
+### [staging.live.{alias}.contensis.cloud](http://staging.live.{alias}.contensis.cloud)
+
+| CMS        | Project | Data      | Branch   | Version  |
+| ---------- | ------- | --------- | -------- | -------- |
+| Production | website | Published | `master` | `latest` |
+
+### [dev.live.{alias}.contensis.cloud](http://dev.live.{alias}.contensis.cloud)
+
+| CMS        | Project | Data      | Branch    | Version  |
+| ---------- | ------- | --------- | --------- | -------- |
+| Production | website | Published | `develop` | `latest` |
+
+### [preview.{alias}.contensis.cloud](http://preview.{alias}.contensis.cloud)
+
+| CMS        | Project | Data  | Branch   | Version     |
+| ---------- | ------- | ----- | -------- | ----------- |
+| Production | website | Draft | `master` | `release-*` |
+
+### [staging.preview.{alias}.contensis.cloud](http://staging.preview.{alias}.contensis.cloud)
+
+| CMS        | Project | Data  | Branch   | Version  |
+| ---------- | ------- | ----- | -------- | -------- |
+| Production | website | Draft | `master` | `latest` |
+
+### [dev.preview.{alias}.contensis.cloud](http://dev.preview.{alias}.contensis.cloud)
+
+| CMS        | Project | Data  | Branch    | Version  |
+| ---------- | ------- | ----- | --------- | -------- |
+| Production | website | Draft | `develop` | `latest` |
+
+## Storybook
+
+### [storybook.latest.{alias}.contensis.cloud](http://storybook.latest.{alias}.contensis.cloud)
+
+| CMS | Project | Data | Branch   | Version  |
+| --- | ------- | ---- | -------- | -------- |
+| N/A | N/A     | N/A  | `master` | `latest` |
+
+## {Project Name} Dev
+
+### [live.{alias}-dev.contensis.cloud](http://live.{alias}-dev.contensis.cloud)
+
+| CMS        | Project | Data      | Branch   | Version     |
+| ---------- | ------- | --------- | -------- | ----------- |
+| Production | website | Published | `master` | `release-*` |
+
+### [staging.live.{alias}-dev.contensis.cloud](http://staging.live.{alias}-dev.contensis.cloud)
+
+| CMS        | Project | Data      | Branch   | Version  |
+| ---------- | ------- | --------- | -------- | -------- |
+| Production | website | Published | `master` | `latest` |
+
+### [dev.live.{alias}-dev.contensis.cloud](http://dev.live.{alias}-dev.contensis.cloud)
+
+| CMS        | Project | Data      | Branch    | Version  |
+| ---------- | ------- | --------- | --------- | -------- |
+| Production | website | Published | `develop` | `latest` |
+
+### [preview.{alias}-dev.contensis.cloud](http://preview.{alias}-dev.contensis.cloud)
+
+| CMS        | Project | Data  | Branch   | Version     |
+| ---------- | ------- | ----- | -------- | ----------- |
+| Production | website | Draft | `master` | `release-*` |
+
+### [staging.preview.{alias}-dev.contensis.cloud](http://staging.preview.{alias}-dev.contensis.cloud)
+
+| CMS        | Project | Data  | Branch   | Version  |
+| ---------- | ------- | ----- | -------- | -------- |
+| Production | website | Draft | `master` | `latest` |
+
+### [dev.preview.{alias}-dev.contensis.cloud](http://dev.preview.{alias}-dev.contensis.cloud)
+
+| CMS        | Project | Data  | Branch    | Version  |
+| ---------- | ------- | ----- | --------- | -------- |
+| Production | website | Draft | `develop` | `latest` |
