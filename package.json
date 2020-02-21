@@ -17,7 +17,7 @@
     "build:legacy": "rimraf ./dist/legacy && rimraf ./dist/static/legacy && mkdirp ./dist/legacy && cross-env NODE_ENV=production BROWSERSLIST_ENV=legacy webpack --config webpack/webpack.config.prod.js",
     "server": "node dist/start.js",
     "dev:server": "nodemon --exec cross-env BROWSERSLIST_ENV=node NODE_ENV=test babel-node --inspect=9229 src/server/debug.js",
-    "build:serv": "npm run build && npm run server",
+    "build:serve": "npm run build && npm run server",
     "build:dev:server": "npm run build && npm run dev:server",
     "postinstall": "patch-package",
     "lint": "eslint .",

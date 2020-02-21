@@ -72,12 +72,14 @@ const production = {
   __isBrowser__: false,
   DISABLE_SSR_REDUX: false,
   ALLOWED_GROUPS,
-  PROXY_DELIVERY_API: false,
+  PROXY_DELIVERY_API: true,
   REVERSE_PROXY_PATHS,
   VERSION: packagejson.version,
 };
 
-module.exports.build =
-  process.env.NODE_ENV == 'production' ? production : development;
-
-module.exports.projects = PROJECTS;
+module.exports = {
+  build: process.env.NODE_ENV == 'production' ? production : development,
+  development,
+  production,
+  projects: PROJECTS,
+};

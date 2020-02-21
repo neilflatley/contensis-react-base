@@ -5,34 +5,13 @@ const HtmlWebPackPlugin = require('html-webpack-plugin');
 const BrowserSyncPlugin = require('browser-sync-webpack-plugin');
 const FriendlyErrorsWebpackPlugin = require('friendly-errors-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
-const appConfig = require('./define-config').build;
-const defineConfigDev = require('./define-config-webpack').dev;
 
 const BASE_CONFIG = require('./webpack.config.base');
-const BABEL_LEGACY = require('../babel.config.legacy');
-const BABEL_MODERN = require('../babel.config.modern');
-
-const target = process.env.BROWSERSLIST_ENV;
-const isModern = target === 'modern';
-
-const { SERVERS, REVERSE_PROXY_PATHS, PROXY_DELIVERY_API } = appConfig;
-
-const apiProxy = PROXY_DELIVERY_API
-  ? {
-      '/api/*': {
-        target: SERVERS.cms,
-        changeOrigin: true,
-      },
-    }
-  : {};
-const reverseProxies = {};
-
-REVERSE_PROXY_PATHS.forEach(path => {
-  reverseProxies[path] = {
-    target: SERVERS.iis || SERVERS.web,
-    changeOrigin: true,
-  };
-});
+const {
+  BABEL_CONFIG,
+  DEVSERVER_PROXIES,
+  WEBPACK_DEFINE_CONFIG,
+} = require('./bundle-info');
 
 const CLIENT_DEV_CONFIG = {
   name: 'webpack-dev-config',
@@ -62,7 +41,7 @@ const CLIENT_DEV_CONFIG = {
         exclude: /node_modules/,
         use: {
           loader: 'babel-loader',
-          options: isModern ? BABEL_MODERN : BABEL_LEGACY,
+          options: BABEL_CONFIG,
         },
       },
       {
@@ -86,7 +65,7 @@ const CLIENT_DEV_CONFIG = {
     ],
   },
   plugins: [
-    new webpack.DefinePlugin(defineConfigDev),
+    new webpack.DefinePlugin(WEBPACK_DEFINE_CONFIG.dev),
     new HtmlWebPackPlugin({
       template: path.resolve(__dirname, '../public/index.html'),
       filename: './index.html',
@@ -128,10 +107,7 @@ const CLIENT_DEV_CONFIG = {
       // aggregateTimeout: 300,
       // poll: 1000,
     },
-    proxy: {
-      ...apiProxy,
-      ...reverseProxies,
-    },
+    proxy: DEVSERVER_PROXIES,
   },
 };
 

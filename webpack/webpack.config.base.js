@@ -1,13 +1,8 @@
 const path = require('path');
 const webpack = require('webpack');
-const defineConfig = require('./define-config-webpack').base;
 const ASSET_PATH = '/';
 
-const BABEL_MODERN = require('../babel.config.modern');
-const BABEL_LEGACY = require('../babel.config.legacy');
-
-const target = process.env.BROWSERSLIST_ENV;
-const isModern = target === 'modern';
+const { BABEL_CONFIG, WEBPACK_DEFINE_CONFIG } = require('./bundle-info');
 
 module.exports = {
   output: {
@@ -47,7 +42,7 @@ module.exports = {
         ],
         use: {
           loader: 'babel-loader',
-          options: isModern ? BABEL_MODERN : BABEL_LEGACY,
+          options: BABEL_CONFIG,
         },
       },
       {
@@ -66,5 +61,5 @@ module.exports = {
       },
     ],
   },
-  plugins: [new webpack.DefinePlugin(defineConfig)],
+  plugins: [new webpack.DefinePlugin(WEBPACK_DEFINE_CONFIG.base)],
 };
