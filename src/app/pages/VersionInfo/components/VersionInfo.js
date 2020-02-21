@@ -183,7 +183,7 @@ VersionInfo.propTypes = {
   nodeEnv: PropTypes.string,
   packagejson: PropTypes.object,
   project: PropTypes.string,
-  projects: PropTypes.object,
+  projects: PropTypes.oneOfType([PropTypes.object, PropTypes.array]),
   proxyDeliveryApi: PropTypes.bool,
   publicUri: PropTypes.string,
   reverseProxyPaths: PropTypes.object,
