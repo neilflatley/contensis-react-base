@@ -1,6 +1,6 @@
 const defineConfig = require('./webpack/define-config').build;
 
-const { legacy, modern } = require('./babel-bundle.config');
+const { legacy, modern } = require('./webpack/babel-bundle.config');
 
 module.exports = {
   env: {

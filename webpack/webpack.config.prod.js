@@ -7,7 +7,6 @@ const ReactLoadablePlugin = require('react-loadable/webpack')
 const FriendlyErrorsWebpackPlugin = require('friendly-errors-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const ImageminPlugin = require('imagemin-webpack-plugin').default;
-const WebpackShellPlugin = require('webpack-shell-plugin');
 const Visualizer = require('webpack-visualizer-plugin');
 
 const BASE_CONFIG = require('./webpack.config.base');
@@ -132,12 +131,6 @@ const CLIENT_PROD_CONFIG = {
     }),
     new Visualizer({
       filename: `./${target}/client-stats.html`,
-    }),
-    new WebpackShellPlugin({
-      onBuildEnd: [
-        'echo "Executing Webpack post build scripts..."',
-        'node node_modules/zengenti-buildstartup-package',
-      ],
     }),
   ],
 };
