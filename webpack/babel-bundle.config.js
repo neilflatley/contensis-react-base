@@ -17,6 +17,7 @@ module.exports = {
           root: './src',
           alias: {
             '~': './src/app',
+            '-': './',
           },
           cwd: 'packagejson',
         },
@@ -58,6 +59,7 @@ module.exports = {
           root: './src',
           alias: {
             '~': './src/app',
+            '-': './',
           },
           cwd: 'packagejson',
         },

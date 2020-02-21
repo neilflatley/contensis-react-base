@@ -1,5 +1,6 @@
 const path = require('path');
 const webpack = require('webpack');
+
 const ASSET_PATH = '/';
 
 const { BABEL_CONFIG, WEBPACK_DEFINE_CONFIG } = require('./bundle-info');
@@ -12,6 +13,7 @@ module.exports = {
     extensions: ['.js', '.jsx', '.json'],
     alias: {
       '~': path.resolve(__dirname, '../src/app'),
+      '-': path.resolve(__dirname, '../'),
       react: path.resolve('node_modules/react'),
       'react-dom': '@hot-loader/react-dom',
     },

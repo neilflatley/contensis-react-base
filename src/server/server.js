@@ -27,7 +27,7 @@ ZengentiAppServer.start(
     allowedGroups: ALLOWED_GROUPS /* global ALLOWED_GROUPS */,
     disableSsrRedux: DISABLE_SSR_REDUX /* global DISABLE_SSR_REDUX */,
     // Some information about the project and the build to pass to the start config
-    packagejson: require('../../package.json'),
+    packagejson: require('-/package.json'),
     stats: 'dist/target/react-loadable.json',
     versionData: 'dist/static/version.json',
   },
