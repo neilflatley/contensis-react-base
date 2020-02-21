@@ -18,7 +18,7 @@ COPY --from=basebuilder /usr/src/app/dist /usr/src/app/dist
 #ENTRYPOINT node dist/server/start.$alias.js
 
 # Start the server using a project id and cms alias targeting the specific start script
-ENTRYPOINT node dist/server/start.$projectId.$alias.js
+ENTRYPOINT node --max-http-header-size=800000 dist/server/start.$projectId.$alias.js
 
 # Start the server configured for a given cms alias where the projectId is 'website' using env variable
 #ENTRYPOINT npm --start=$alias run-script server
