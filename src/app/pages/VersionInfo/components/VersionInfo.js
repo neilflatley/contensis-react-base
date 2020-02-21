@@ -8,6 +8,7 @@ import { VersionInfoStyledTable } from './VersionInfo.styled.js';
 const VersionInfo = ({
   deliveryApi,
   disabeSsrRedux,
+  nodeEnv,
   servers,
   packagejson,
   project,
@@ -164,6 +165,12 @@ const VersionInfo = ({
             <td>Disable SSR inline-redux</td>
             <td>{disabeSsrRedux.toString()}</td>
           </tr>
+          <tr>
+            <td>NODE_ENV</td>
+            <td className={nodeEnv === 'production' ? 'green' : 'red'}>
+              {nodeEnv.toString()}
+            </td>
+          </tr>
         </tbody>
       </VersionInfoStyledTable>
     </>
@@ -173,13 +180,14 @@ const VersionInfo = ({
 VersionInfo.propTypes = {
   deliveryApi: PropTypes.object,
   disabeSsrRedux: PropTypes.bool,
-  servers: PropTypes.object,
+  nodeEnv: PropTypes.string,
   packagejson: PropTypes.object,
   project: PropTypes.string,
   projects: PropTypes.object,
   proxyDeliveryApi: PropTypes.bool,
   publicUri: PropTypes.string,
   reverseProxyPaths: PropTypes.object,
+  servers: PropTypes.object,
   version: PropTypes.object,
 };
 

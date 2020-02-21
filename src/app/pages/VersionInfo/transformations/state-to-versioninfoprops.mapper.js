@@ -8,15 +8,19 @@ import {
 } from '~/core/redux/selectors/version.js';
 
 const versionInfoProps = {
-  deliveryApi: () => DELIVERY_API_CONFIG /* global DELIVERY_API_CONFIG */,
+  deliveryApi: () =>
+    JSON.parse(
+      JSON.stringify(DELIVERY_API_CONFIG /* global DELIVERY_API_CONFIG */)
+    ),
   disabeSsrRedux: () => DISABLE_SSR_REDUX /* global DISABLE_SSR_REDUX*/,
-  servers: () => SERVERS /* global SERVERS */,
+  nodeEnv: () => process.env.NODE_ENV,
   packagejson: () => packagejson,
   projects: () => PROJECTS /* global PROJECTS */,
   proxyDeliveryApi: () => PROXY_DELIVERY_API /* global PROXY_DELIVERY_API */,
   publicUri: () => PUBLIC_URI /* global PUBLIC_URI */,
   project: state => selectCurrentProject(state),
   reverseProxyPaths: () => REVERSE_PROXY_PATHS /* global REVERSE_PROXY_PATHS */,
+  servers: () => SERVERS /* global SERVERS */,
   version: {
     buildNumber: state => selectBuildNumber(state),
     commitRef: state => selectCommitRef(state),
