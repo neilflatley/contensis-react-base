@@ -1,7 +1,9 @@
 const path = require('path');
 const webpack = require('webpack');
-const defineConfig = require('./define-config-webpack').base;
+
 const ASSET_PATH = '/';
+
+const { BABEL_CONFIG, WEBPACK_DEFINE_CONFIG } = require('./bundle-info');
 
 module.exports = {
   output: {
@@ -11,6 +13,7 @@ module.exports = {
     extensions: ['.js', '.jsx', '.json'],
     alias: {
       '~': path.resolve(__dirname, '../src/app'),
+      '-': path.resolve(__dirname, '../'),
       react: path.resolve('node_modules/react'),
       'react-dom': '@hot-loader/react-dom',
     },
@@ -41,6 +44,7 @@ module.exports = {
         ],
         use: {
           loader: 'babel-loader',
+          options: BABEL_CONFIG,
         },
       },
       {
@@ -59,5 +63,5 @@ module.exports = {
       },
     ],
   },
-  plugins: [new webpack.DefinePlugin(defineConfig)],
+  plugins: [new webpack.DefinePlugin(WEBPACK_DEFINE_CONFIG.base)],
 };

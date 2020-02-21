@@ -2,31 +2,35 @@ const webpack = require('webpack');
 const merge = require('webpack-merge');
 const path = require('path');
 const HtmlWebPackPlugin = require('html-webpack-plugin');
-const CleanWebpackPlugin = require('clean-webpack-plugin');
 const ReactLoadablePlugin = require('react-loadable/webpack')
   .ReactLoadablePlugin;
-const webpackNodeExternals = require('webpack-node-externals');
 const FriendlyErrorsWebpackPlugin = require('friendly-errors-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const ImageminPlugin = require('imagemin-webpack-plugin').default;
-const WebpackShellPlugin = require('webpack-shell-plugin');
 const Visualizer = require('webpack-visualizer-plugin');
 
 const BASE_CONFIG = require('./webpack.config.base');
-const defineConfigProd = require('./define-config-webpack').prod;
+const {
+  BROWSERSLIST_ENV: target,
+  POLYFILLS_PATH,
+  WEBPACK_DEFINE_CONFIG,
+} = require('./bundle-info');
 
 const CLIENT_PROD_CONFIG = {
-  name: 'webpack-client-prod-config',
+  name: `webpack-client-prod-config [${target}]`,
   target: 'web',
   mode: 'production',
   stats: 'errors-only',
   entry: {
-    app: path.resolve(__dirname, '../src/client/client-entrypoint.js'),
+    app: [
+      POLYFILLS_PATH,
+      path.resolve(__dirname, '../src/client/client-entrypoint.js'),
+    ],
   },
   output: {
-    path: path.resolve(__dirname, '../dist'),
-    filename: 'static/js/[name].[chunkhash].js',
-    chunkFilename: 'static/js/[name].[chunkhash].js',
+    path: path.resolve(__dirname, `../dist`),
+    filename: `static/${target}/js/[name].[chunkhash].js`,
+    chunkFilename: `static/${target}/js/[name].[chunkhash].js`,
   },
   optimization: {
     splitChunks: {
@@ -42,13 +46,10 @@ const CLIENT_PROD_CONFIG = {
     runtimeChunk: 'single',
   },
   plugins: [
-    new CleanWebpackPlugin('dist/*', {
-      root: path.resolve(__dirname, '..'),
-    }),
-    new webpack.DefinePlugin(defineConfigProd),
+    new webpack.DefinePlugin(WEBPACK_DEFINE_CONFIG.prod),
     new HtmlWebPackPlugin({
       template: path.resolve(__dirname, '../public/index.ejs'),
-      filename: './index.html',
+      filename: path.resolve(__dirname, `../dist/${target}/index.html`),
       inject: false,
       minify: {
         removeComments: true,
@@ -66,7 +67,10 @@ const CLIENT_PROD_CONFIG = {
     }),
     new HtmlWebPackPlugin({
       template: path.resolve(__dirname, '../public/index_fragment.ejs'),
-      filename: './index_fragment.html',
+      filename: path.resolve(
+        __dirname,
+        `../dist/${target}/index_fragment.html`
+      ),
       inject: false,
       minify: {
         removeComments: true,
@@ -84,7 +88,7 @@ const CLIENT_PROD_CONFIG = {
     }),
     new HtmlWebPackPlugin({
       template: path.resolve(__dirname, '../public/index_static.ejs'),
-      filename: './index_static.html',
+      filename: path.resolve(__dirname, `../dist/${target}/index_static.html`),
       inject: false,
       minify: {
         removeComments: true,
@@ -101,7 +105,10 @@ const CLIENT_PROD_CONFIG = {
       },
     }),
     new ReactLoadablePlugin({
-      filename: path.resolve(__dirname, '../dist/static/react-loadable.json'),
+      filename: path.resolve(
+        __dirname,
+        `../dist/${target}/react-loadable.json`
+      ),
     }),
     new FriendlyErrorsWebpackPlugin({
       compilationSuccessInfo: {
@@ -122,42 +129,10 @@ const CLIENT_PROD_CONFIG = {
         optimizationLevel: 9,
       },
     }),
-    new Visualizer({ filename: './stats/client-stats.html' }),
+    new Visualizer({
+      filename: `./${target}/client-stats.html`,
+    }),
   ],
 };
 
-const SERVER_PROD_CONFIG = {
-  name: 'webpack-server-prod-config',
-  target: 'node',
-  mode: 'production',
-  stats: 'errors-only',
-  entry: {
-    server: path.resolve(__dirname, '../src/server/server.js'),
-    test: path.resolve(__dirname, '../src/server/test.js'),
-  },
-  output: {
-    filename: '[name].js',
-    path: path.resolve(__dirname, '../dist'),
-  },
-  externals: [webpackNodeExternals()],
-  plugins: [
-    new webpack.DefinePlugin({
-      __isBrowser__: 'false',
-    }),
-    new webpack.optimize.LimitChunkCountPlugin({
-      maxChunks: 1,
-    }),
-    new WebpackShellPlugin({
-      onBuildEnd: [
-        'echo "Executing Webpack post build scripts..."',
-        'node node_modules/zengenti-buildstartup-package',
-      ],
-    }),
-    new Visualizer({ filename: './stats/server-stats.html' }),
-  ],
-};
-
-module.exports = [
-  merge(BASE_CONFIG, CLIENT_PROD_CONFIG),
-  merge(BASE_CONFIG, SERVER_PROD_CONFIG),
-];
+module.exports = [merge(BASE_CONFIG, CLIENT_PROD_CONFIG)];
