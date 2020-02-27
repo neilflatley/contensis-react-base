@@ -44,7 +44,7 @@ REVERSE_PROXY_PATHS.forEach(path => {
   };
 });
 
-const DEVSERVER_PROXIES = { ...apiProxies, reverseProxies };
+const DEVSERVER_PROXIES = { ...apiProxies, ...reverseProxies };
 
 module.exports = {
   BABEL_CONFIG,
