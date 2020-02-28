@@ -1,11 +1,11 @@
 import { default as mapJson } from '~/core/util/json-mapper';
 import packagejson from '-/package.json';
-import { selectCurrentProject } from '~/core/redux/selectors/routing.js';
 import {
   selectBuildNumber,
   selectCommitRef,
+  selectCurrentProject,
   selectVersionStatus,
-} from '~/core/redux/selectors/version.js';
+} from '~/core/redux/selectors';
 
 const versionInfoProps = {
   deliveryApi: () =>
