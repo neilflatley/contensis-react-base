@@ -1,3 +1,3 @@
-import json2json from 'awesome-json2json';
-
-export default json2json;
+import { mapJson } from 'zengenti-isomorphic-base/util';
+export { useMapper } from 'zengenti-isomorphic-base/util';
+export default mapJson;
