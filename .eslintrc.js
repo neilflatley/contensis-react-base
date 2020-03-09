@@ -1,7 +1,7 @@
 const path = require('path');
 
 module.exports = {
-  plugins: ['prettier', 'react', 'flowtype'],
+  plugins: ['prettier', 'react', 'react-hooks', 'flowtype'],
   extends: [
     'eslint:recommended',
     'plugin:react/recommended',
@@ -37,6 +37,8 @@ module.exports = {
   },
   rules: {
     'react/require-default-props': 0,
+    'react-hooks/rules-of-hooks': 'error',
+    'react-hooks/exhaustive-deps': 'warn',
     'no-debugger': 0,
     'no-alert': 0,
     'no-console': [
