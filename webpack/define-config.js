@@ -67,6 +67,7 @@ const development = {
   REVERSE_PROXY_PATHS,
   SERVERS,
   VERSION: packagejson.version,
+  CONTENSIS_VERSION: process.env.CONTENSIS_VERSION,
 };
 
 const production = {
@@ -76,6 +77,7 @@ const production = {
   PROXY_DELIVERY_API: true,
   REVERSE_PROXY_PATHS,
   VERSION: packagejson.version,
+  CONTENSIS_VERSION: process.env.CONTENSIS_VERSION,
 };
 
 module.exports = {

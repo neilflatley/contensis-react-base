@@ -9,7 +9,7 @@ const sitemap = app => {
           'Content-Type': 'application/xml',
           'Surrogate-Control': 'max-age=3600',
         });
-        res.write(sitemap.toString());
+        res.write(sitemap);
         res.end();
       })
       .catch(error =>
