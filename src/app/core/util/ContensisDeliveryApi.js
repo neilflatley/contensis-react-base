@@ -1,7 +1,7 @@
 import { Client } from 'contensis-delivery-api';
 
 const getClientConfig = project => {
-  let config = DELIVERY_API_CONFIG; /* global DELIVERY_API_CONFIG */
+  let config = { ...DELIVERY_API_CONFIG }; /* global DELIVERY_API_CONFIG */
   if (project) {
     config.projectId = project;
   }

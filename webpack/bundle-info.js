@@ -1,20 +1,6 @@
 /**
  * Consolidate build imports and save repetition in the webpack.config.* files
  */
-const path = require('path');
-
-// Check BROWSERSLIST_ENV arg and set bundle build mode
-const env = process.env.BROWSERSLIST_ENV;
-const isModern = env === 'modern';
-
-const POLYFILLS_PATH = isModern
-  ? path.resolve(__dirname, '../src/client/polyfills.modern.js')
-  : path.resolve(__dirname, '../src/client/polyfills.legacy.js');
-
-const BABEL_CONFIG = isModern
-  ? require('./babel-bundle.config').modern
-  : require('./babel-bundle.config').legacy;
-
 const DEFINE_CONFIG = require('./define-config');
 const WEBPACK_DEFINE_CONFIG = require('./define-config-webpack');
 
@@ -28,6 +14,7 @@ const {
 const apiProxies = PROXY_DELIVERY_API
   ? {
       '/api/*': {
+        // target: 'http://localhost:3001',
         target: SERVERS.cms,
         changeOrigin: true,
       },
@@ -47,11 +34,7 @@ REVERSE_PROXY_PATHS.forEach(path => {
 const DEVSERVER_PROXIES = { ...apiProxies, ...reverseProxies };
 
 module.exports = {
-  BABEL_CONFIG,
-  BROWSERSLIST_ENV: env,
   DEFINE_CONFIG,
   DEVSERVER_PROXIES,
-  isModern,
-  POLYFILLS_PATH,
   WEBPACK_DEFINE_CONFIG,
 };

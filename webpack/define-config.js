@@ -58,6 +58,7 @@ const DELIVERY_API_CONFIG = {
 const development = {
   __isBrowser__: true,
   DELIVERY_API_CONFIG,
+  DEV_ENV: process.env,
   DISABLE_SSR_REDUX: false,
   PROJECTS: PROJECTS(process.env),
   ALLOWED_GROUPS,

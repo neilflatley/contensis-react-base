@@ -4,9 +4,11 @@ import { hot } from 'react-hot-loader';
 import { connect } from 'react-redux';
 import mapStateToVersionInfo from '../transformations/state-to-versioninfoprops.mapper.js';
 import { VersionInfoStyledTable } from './VersionInfo.styled.js';
+import Link from '~/features/components/link';
 
 const VersionInfo = ({
   deliveryApi,
+  devEnv,
   disabeSsrRedux,
   nodeEnv,
   servers,
@@ -24,7 +26,9 @@ const VersionInfo = ({
         <thead>
           <tr>
             <td colSpan={2}>
-              <h1>Version Information</h1>
+              <h1>
+                <Link path="/">Version Information</Link>
+              </h1>
             </td>
           </tr>
         </thead>
@@ -147,11 +151,14 @@ const VersionInfo = ({
             <td>Delivery API</td>
             <td className="small">
               <ul style={{ margin: 0, padding: 0 }}>
-                {Object.entries(deliveryApi).map(([key, value], idx) => (
-                  <li key={idx} style={{ listStyleType: 'none' }}>
-                    {key}: <span>{value}</span>
-                  </li>
-                ))}
+                {Object.entries(deliveryApi).map(([key, value], idx) => {
+                  if (typeof value === 'object') return null;
+                  return (
+                    <li key={idx} style={{ listStyleType: 'none' }}>
+                      {key}: <span>{value}</span>
+                    </li>
+                  );
+                })}
               </ul>
             </td>
           </tr>
@@ -171,6 +178,18 @@ const VersionInfo = ({
               {nodeEnv.toString()}
             </td>
           </tr>
+          {devEnv && (
+            <tr>
+              <td>process.env</td>
+              <td>
+                {Object.entries(devEnv).map(([k, v], key) => (
+                  <div key={key}>
+                    [ {k}: {v} ]
+                  </div>
+                ))}
+              </td>
+            </tr>
+          )}
         </tbody>
       </VersionInfoStyledTable>
     </>
@@ -179,6 +198,7 @@ const VersionInfo = ({
 
 VersionInfo.propTypes = {
   deliveryApi: PropTypes.object,
+  devEnv: PropTypes.object,
   disabeSsrRedux: PropTypes.bool,
   nodeEnv: PropTypes.string,
   packagejson: PropTypes.object,

@@ -21,7 +21,9 @@
   // End with a newline.
   "html.format.endWithNewline": false,
   // Turns auto fix on save on or off.
-  "eslint.autoFixOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true
+  },
   // Always show the ESlint status bar item.
   "eslint.alwaysShowStatus": false,
   "prettier-eslint.eslintIntegration": true,
@@ -35,13 +37,12 @@
       "when": "$(basename).tsx"
     }
   },
-  "editor.formatOnSave": true,
   "editor.formatOnPaste": true,
   "editor.cursorBlinking": "smooth",
   "workbench.editor.highlightModifiedTabs": true,
   "workbench.colorCustomizations": {
     "tab.activeBorderTop": "#e9654c",
-    "activityBar.background": "#e9654c",
+    "activityBar.background": "#666666",
     "activityBar.activeBorder": "#55ea6c",
     "activityBar.foreground": "#15202b",
     "activityBar.inactiveForeground": "#15202b99",
@@ -56,8 +57,5 @@
     "statusBar.foreground": "#e7e7e7"
   },
   "prettier.printWidth": 80,
-  "peacock.color": "#e33e1f",
-  "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": true
-  }
+  "peacock.color": "#e33e1f"
 }

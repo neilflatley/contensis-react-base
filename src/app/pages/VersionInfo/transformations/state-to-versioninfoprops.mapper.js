@@ -12,6 +12,8 @@ const versionInfoProps = {
     JSON.parse(
       JSON.stringify(DELIVERY_API_CONFIG /* global DELIVERY_API_CONFIG */)
     ),
+  devEnv: () =>
+    typeof DEV_ENV !== 'undefined' /* global DEV_ENV */ ? DEV_ENV : null,
   disabeSsrRedux: () => DISABLE_SSR_REDUX /* global DISABLE_SSR_REDUX*/,
   nodeEnv: () => process.env.NODE_ENV,
   packagejson: () => packagejson,
@@ -28,6 +30,11 @@ const versionInfoProps = {
   },
 };
 
-const mapGlobalsToVersionInfo = state => mapJson(state, versionInfoProps);
+const mapStateToVersionInfo = state => {
+  const mappedProps = mapJson(state, versionInfoProps);
+  // eslint-disable-next-line no-console
+  console.log(mappedProps);
+  return mappedProps;
+};
 
-export default mapGlobalsToVersionInfo;
+export default mapStateToVersionInfo;
