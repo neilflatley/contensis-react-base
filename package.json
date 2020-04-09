@@ -107,7 +107,6 @@
     "zengenti-buildstartup-package": "0.0.8"
   },
   "dependencies": {
-    "awesome-json2json": "^0.5.2",
     "custom-env": "^1.0.2",
     "dateformat": "^3.0.3",
     "file-loader": "^4.0.0",
