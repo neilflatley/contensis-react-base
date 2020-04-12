@@ -104,7 +104,7 @@
     "webpack-modules": "^1.0.0",
     "webpack-node-externals": "1.7.2",
     "webpack-visualizer-plugin": "^0.1.11",
-    "zengenti-buildstartup-package": "0.0.8"
+    "zengenti-buildstartup-package": "0.0.9"
   },
   "dependencies": {
     "custom-env": "^1.0.2",

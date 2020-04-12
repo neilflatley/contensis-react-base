@@ -3,7 +3,14 @@ const { urls } = require('zengenti-isomorphic-base/util');
 
 require('custom-env').env(process.env.env || process.env.npm_config_env);
 
-const { PUBLIC_URL, ALIAS, INTERNAL_VIP, ACCESS_TOKEN, PROJECT } = process.env;
+const {
+  PUBLIC_URL,
+  ALIAS,
+  INTERNAL_VIP,
+  ACCESS_TOKEN,
+  PROJECT,
+  CONTENSIS_VERSION,
+} = process.env;
 
 const PROJECTS = env => [
   {
@@ -67,7 +74,7 @@ const development = {
   REVERSE_PROXY_PATHS,
   SERVERS,
   VERSION: packagejson.version,
-  CONTENSIS_VERSION: process.env.CONTENSIS_VERSION,
+  CONTENSIS_VERSION,
 };
 
 const production = {
@@ -77,7 +84,7 @@ const production = {
   PROXY_DELIVERY_API: true,
   REVERSE_PROXY_PATHS,
   VERSION: packagejson.version,
-  CONTENSIS_VERSION: process.env.CONTENSIS_VERSION,
+  //CONTENSIS_VERSION: process.env.CONTENSIS_VERSION, We can't have this here as this causes the variable to be "baked-in" to the build and negates the point of having it in the env file
 };
 
 module.exports = {
