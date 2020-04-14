@@ -6,7 +6,7 @@
 - `npm run build` - generates a universal client bundle
 - `npm --start={projectId}.{alias} run-script server` - to start production server targeted to a specific ".env" configuration (and write out a new default client bundle to serve later)
 - `[CTRL+C]` - quit the server
-- `npm --env=development run-script dev:server` - start the server-side debug session, targeting any code executed server-side to the appropriate `.env*` file.
+- To target a server-side debug session to a specific `.env.*` file, run `npm --start={projectId}.{alias} run-script build:server`, once built, quit the running server and then run `npm --env=development run-script dev:server` to start the targeted server-side debug session.
 
 ## Configuration
 
