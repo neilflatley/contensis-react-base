@@ -9,6 +9,16 @@ export default {
   }) {
     // eslint-disable-next-line no-console
     yield console.log('onRouteLoadEvent', path);
+
+    // Set params for routing saga
+    return {
+      customNavigation: {
+        ancestors: false,
+        children: false,
+        siblings: false,
+        tree: false,
+      },
+    };
   },
   onRouteLoaded: function* onRouteLoaded({
     path,

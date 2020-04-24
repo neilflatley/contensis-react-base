@@ -93,6 +93,7 @@ const CLIENT_LEGACY_CONFIG = {
           // These dependencies have es6 syntax which ie11 doesn't like.
           path.resolve('node_modules/contensis-delivery-api'),
           path.resolve('node_modules/fromentries'),
+          path.resolve('node_modules/@zengenti/contensis-react-base'),
           path.resolve('node_modules/zengenti-isomorphic-base'),
         ],
         use: {
@@ -191,6 +192,7 @@ const SERVER_PROD_CONFIG = {
           // These dependencies have es6 syntax which ie11 doesn't like.
           path.resolve('node_modules/contensis-delivery-api'),
           path.resolve('node_modules/fromentries'),
+          path.resolve('node_modules/@zengenti/contensis-react-base'),
           path.resolve('node_modules/zengenti-isomorphic-base'),
         ],
         use: {

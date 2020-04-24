@@ -1,4 +1,5 @@
-import ZengentiAppServer from 'zengenti-isomorphic-base';
+import ZengentiAppServer from '@zengenti/contensis-react-base';
+import ReactApp from '~/App';
 
 import routes from '~/core/routes';
 import withReducers from '~/core/redux/reducers';
@@ -8,7 +9,7 @@ import withEvents from '~/core/redux/withEvents';
 import ServerFeatures from './features/configure';
 
 ZengentiAppServer.start(
-  ZengentiAppServer.ReactApp,
+  ReactApp,
   {
     routes,
     withReducers,

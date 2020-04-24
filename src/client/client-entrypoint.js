@@ -1,7 +1,8 @@
 import 'core-js';
 
 // the entry point for the rest of the app
-import ClientApp, { ReactApp } from 'zengenti-isomorphic-base/client';
+import ClientApp from '@zengenti/contensis-react-base/client';
+import ReactApp from '~/App';
 
 import routes from '~/core/routes';
 import withReducers from '~/core/redux/reducers';

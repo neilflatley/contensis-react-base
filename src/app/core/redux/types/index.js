@@ -1,4 +1,8 @@
-import { navigation, routing, version } from 'zengenti-isomorphic-base/redux';
+import {
+  navigation,
+  routing,
+  version,
+} from '@zengenti/contensis-react-base/redux';
 
 export const {
   GET_NODE_TREE,

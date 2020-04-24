@@ -42,7 +42,7 @@ If your commit message contains a Jira task ID gitlab will automatically add a c
 
 # What's goin' on under the hood? :wrench:
 
-The core of the application is in package `zengenti-isomorphic-base` this must be installed as a 'production' dependency, i.e. lives in the `dependencies` section of your `package.json`
+The core of the application is in package `@zengenti/contensis-react-base` this must be installed as a 'production' dependency, i.e. lives in the `dependencies` section of your `package.json`
 
 The package handles things such as:
 

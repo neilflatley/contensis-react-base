@@ -1,3 +1,3 @@
-import { mapJson } from 'zengenti-isomorphic-base/util';
-export { useMapper } from 'zengenti-isomorphic-base/util';
+import { mapJson } from '@zengenti/contensis-react-base/util';
+export { useMapper } from '@zengenti/contensis-react-base/util';
 export default mapJson;
