@@ -4,6 +4,7 @@ stages:
   - storybook-latest-build
   - latest-build
   - live-build
+  - development-release-build
 
 variables:
   DOCKER_DRIVER: overlay2
@@ -13,6 +14,7 @@ variables:
   STORYBOOK_BUILDER_IMAGE: '$CI_REGISTRY_IMAGE/$CI_COMMIT_REF_NAME/storybook-builder'
   STORYBOOK_IMAGE: '$CI_REGISTRY_IMAGE/$CI_COMMIT_REF_NAME/storybook'
   MASTER_APP: '$CI_REGISTRY_IMAGE/master/app'
+  DEVELOP_APP: '$CI_REGISTRY_IMAGE/develop/app'
 
 services:
   - docker:dind
@@ -24,7 +26,6 @@ build-latest-code:
   stage: latest-build
   except:
     - tags
-    - ^release-.*$
   script:
     - docker pull $APP_BUILDER_IMAGE:latest || true
     - echo "{\"commitRef\":\"$CI_COMMIT_SHA\",\"pipelineIID\":\"$CI_PIPELINE_IID\",\"pipelineUrl\":\"$CI_PIPELINE_URL\",\"buildNo\":\"$CI_PIPELINE_ID\",\"branchName\":\"$CI_COMMIT_REF_NAME\",\"registryImage\":\"$CI_REGISTRY_IMAGE\"}" > version.json
@@ -41,7 +42,7 @@ build-storybook:
   stage: storybook-latest-build
   except:
     - tags
-    - ^release-.*$
+    - /^release-.*$/
   only:
     variables:
       - $STORYBOOK == 'true'
@@ -58,15 +59,34 @@ build-storybook:
 build-live-code-for-production:
   stage: live-build
   only:
-    - tags
-    - ^release-.*$
-    - $STORYBOOK == ''
+    refs:
+      - tags
+    variables:
+      - $CI_COMMIT_TAG =~ /^release-.*$/
   except:
     - branches
   script:
     - docker pull "$MASTER_APP:latest"
     - docker tag "$MASTER_APP:latest" "$MASTER_APP:release"
     - docker push "$MASTER_APP:release"
+    - docker tag "$MASTER_APP:latest" "$MASTER_APP:$CI_COMMIT_TAG"
+    - docker push "$MASTER_APP:$CI_COMMIT_TAG"
+
+  environment:
+    name: live
+    url: http://preview.$CI_PROJECT_NAME.contensis.cloud
+
+build-live-code-for-development:
+  stage: development-release-build
+  only:
+    refs:
+      - tags
+    variables:
+      - $CI_COMMIT_TAG =~ /^devrelease-.*$/
+  script:
+    - docker pull "$DEVELOP_APP:latest"
+    - docker tag "$DEVELOP_APP:latest" "$DEVELOP_APP:release"
+    - docker push "$DEVELOP_APP:release"
   environment:
     name: live
     url: http://preview.$CI_PROJECT_NAME.contensis.cloud
