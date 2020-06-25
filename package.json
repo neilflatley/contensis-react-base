@@ -85,7 +85,7 @@
     "image-webpack-loader": "^5.0.0",
     "imagemin-webpack-plugin": "^2.4.2",
     "jest": "^24.9.0",
-    "mocha": "^6.1.4",
+    "mocha": "^8.0.1",
     "nodemon": "^1.19.1",
     "parallel-webpack": "^2.4.0",
     "prettier": "1.18.2",
@@ -107,7 +107,7 @@
     "zengenti-buildstartup-package": "0.0.9"
   },
   "dependencies": {
-    "@zengenti/contensis-react-base": "^1.0.0-beta.4",
+    "@zengenti/contensis-react-base": "^1.0.0-beta.8",
     "custom-env": "^1.0.2",
     "dateformat": "^3.0.3",
     "file-loader": "^4.0.0",
