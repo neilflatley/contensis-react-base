@@ -9,6 +9,7 @@ COPY package-lock.json .
 COPY --from=basebuilder /usr/src/app/patches /usr/src/app/patches
 #COPY --from=basebuilder /usr/src/app/node_modules/zengenti-isomorphic-base /usr/src/app/node_modules/zengenti-isomorphic-base
 RUN npm install --production --loglevel error
+RUN npm run postinstall
 COPY --from=basebuilder /usr/src/app/dist /usr/src/app/dist
 
 # Standard classic start script, will start the server with the environment started last 
