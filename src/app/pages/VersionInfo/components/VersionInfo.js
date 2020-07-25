@@ -8,7 +8,6 @@ import Link from '~/features/components/link';
 
 const VersionInfo = ({
   deliveryApi,
-  devEnv,
   disabeSsrRedux,
   nodeEnv,
   servers,
@@ -178,18 +177,6 @@ const VersionInfo = ({
               {nodeEnv.toString()}
             </td>
           </tr>
-          {devEnv && (
-            <tr>
-              <td>process.env</td>
-              <td>
-                {Object.entries(devEnv).map(([k, v], key) => (
-                  <div key={key}>
-                    [ {k}: {v} ]
-                  </div>
-                ))}
-              </td>
-            </tr>
-          )}
         </tbody>
       </VersionInfoStyledTable>
     </>
@@ -198,7 +185,6 @@ const VersionInfo = ({
 
 VersionInfo.propTypes = {
   deliveryApi: PropTypes.object,
-  devEnv: PropTypes.object,
   disabeSsrRedux: PropTypes.bool,
   nodeEnv: PropTypes.string,
   packagejson: PropTypes.object,

@@ -12,8 +12,6 @@ const versionInfoProps = {
     JSON.parse(
       JSON.stringify(DELIVERY_API_CONFIG /* global DELIVERY_API_CONFIG */)
     ),
-  devEnv: () =>
-    typeof DEV_ENV !== 'undefined' /* global DEV_ENV */ ? DEV_ENV : null,
   disabeSsrRedux: () => DISABLE_SSR_REDUX /* global DISABLE_SSR_REDUX*/,
   nodeEnv: () => process.env.NODE_ENV,
   packagejson: () => packagejson,
