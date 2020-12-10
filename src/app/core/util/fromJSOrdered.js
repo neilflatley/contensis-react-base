@@ -11,5 +11,4 @@ const fromJSOrdered = js => {
         .map(fromJSOrdered)
         .toOrderedMap();
 };
-
 export default fromJSOrdered;

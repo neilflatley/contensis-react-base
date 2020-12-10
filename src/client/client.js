@@ -6,7 +6,6 @@ import { preloadReady } from 'react-loadable';
 import { AppContainer } from 'react-hot-loader';
 import { Provider as ReduxProvider } from 'react-redux';
 import queryString from 'query-string';
-import { fromJS } from 'immutable';
 
 import createStore from '~/core/redux/store';
 import rootSaga from '~/core/redux/sagas/index.js';
@@ -15,8 +14,8 @@ import { setVersionStatus } from '~/core/redux/actions/version';
 import { deliveryApi } from '~/core/util/ContensisDeliveryApi';
 import { setCurrentProject } from '~/core/redux/actions/routing';
 import pickProject from '~/core/util/pickProject';
-import fromJSOrdered from '~/core/util/fromJSOrdered';
 import { browserHistory as history } from '~/core/redux/history';
+import fromJSLeaveImmer from '~/core/util/fromJSLeaveImmer';
 
 export { default as ReactApp } from '~/App';
 
@@ -24,7 +23,13 @@ class ClientApp {
   constructor(ReactApp, config) {
     const documentRoot = document.getElementById('root');
 
-    const { routes, withReducers, withSagas, withEvents } = config;
+    const {
+      routes,
+      withReducers,
+      withReducersImmer,
+      withSagas,
+      withEvents,
+    } = config;
 
     const GetClientJSX = store => {
       const ClientJsx = (
@@ -62,8 +67,12 @@ class ClientApp {
     ) {
       store = createStore(
         withReducers,
-        fromJSOrdered(window.REDUX_DATA),
-        history
+        fromJSLeaveImmer(
+          window.REDUX_DATA,
+          withReducersImmer ? Object.keys(withReducersImmer) : null
+        ),
+        history,
+        withReducersImmer
       );
       store.dispatch(
         setVersionStatus(qs.versionStatus || versionStatusFromHostname)
@@ -88,7 +97,15 @@ class ClientApp {
           // console.log(data);
           /* eslint-enable no-console */
           const ssRedux = JSON.parse(data);
-          store = createStore(withReducers, fromJS(ssRedux), history);
+          store = createStore(
+            withReducers,
+            fromJSLeaveImmer(
+              ssRedux,
+              withReducersImmer ? Object.keys(withReducersImmer) : null
+            ),
+            history,
+            withReducersImmer
+          );
           // store.dispatch(setVersionStatus(versionStatusFromHostname));
 
           store.runSaga(rootSaga(withSagas));

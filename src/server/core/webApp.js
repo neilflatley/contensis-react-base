@@ -125,6 +125,7 @@ const webApp = (app, ReactApp, config) => {
     globalGroups,
     disableSsrRedux,
     handleResponses,
+    withReducersImmer,
   } = config;
 
   const bundles = {
@@ -189,7 +190,8 @@ const webApp = (app, ReactApp, config) => {
     const store = createStore(
       withReducers,
       fromJS({}),
-      history({ initialEntries: [url] })
+      history({ initialEntries: [url] }),
+      withReducersImmer
     );
     //const store = createStore(withReducers);
 

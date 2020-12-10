@@ -4,6 +4,7 @@ import App from '~/App';
 
 import routes from '~/core/routes';
 import withReducers from '~/core/redux/reducers';
+import withReducersImmer from '~/core/redux/reducersImmer';
 import withSagas from '~/core/redux/sagas';
 import withEvents from '~/core/redux/withEvents';
 
@@ -14,6 +15,7 @@ ZengentiAppServer.start(
   {
     routes,
     withReducers,
+    withReducersImmer,
     withSagas,
     withEvents,
     // The HTML templates we will render the app into

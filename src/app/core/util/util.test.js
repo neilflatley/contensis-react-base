@@ -1,5 +1,6 @@
 //could use --json and --jsonOutputFile=<filename> to output test results for using in CI
-import isNonEmptyArray from '~/core/util/isNonEmptyArray';
+const isNonEmptyArray = itemToCheck =>
+  itemToCheck && Array.isArray(itemToCheck) && itemToCheck.length;
 import truncateString from '~/core/util/truncateString';
 import { getHumanReadableDate } from '~/core/util/dateHelper';
 describe('#isNonEmptyArray', function() {

@@ -43,8 +43,8 @@ Login.propTypes = {
   logoutUser: PropTypes.func,
   isLoading: PropTypes.bool,
   isAuthenticated: PropTypes.bool,
-  authenticationError: PropTypes.string,
-  error: PropTypes.string,
+  authenticationError: PropTypes.oneOfType([PropTypes.string, PropTypes.bool]),
+  error: PropTypes.oneOfType([PropTypes.string, PropTypes.bool]),
   user: PropTypes.object,
   updateUserLoginState: PropTypes.func,
 };

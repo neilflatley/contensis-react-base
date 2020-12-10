@@ -6,12 +6,14 @@ import ReactApp from '~/App';
 
 import routes from '~/core/routes';
 import withReducers from '~/core/redux/reducers.js';
+import withReducersImmer from '~/core/redux/reducersImmer.js';
 import withSagas from '~/core/redux/sagas.js';
 import withEvents from '~/core/redux/withEvents';
 
 const config = {
   routes,
   withReducers,
+  withReducersImmer,
   withSagas,
   withEvents,
 };

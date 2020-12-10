@@ -12,7 +12,12 @@ import routerMiddleware from './routerMiddleware';
 
 export let reduxStore = null;
 
-export default (featureReducers, initialState, history) => {
+export default (
+  featureReducers,
+  initialState,
+  history,
+  featureReducersImmer
+) => {
   const thunkMiddleware = [thunk];
 
   let reduxDevToolsMiddleware = f => f;
@@ -33,12 +38,13 @@ export default (featureReducers, initialState, history) => {
     reduxDevToolsMiddleware
   );
 
-  let reducers = {
+  const reducers = {
     navigation: NavigationReducer,
     routing: RoutingReducer,
     user: UserReducer,
     version: VersionReducer,
     ...featureReducers,
+    ...featureReducersImmer,
   };
 
   const combinedReducers = combineReducers(reducers);
