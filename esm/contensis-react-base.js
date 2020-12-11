@@ -15,16 +15,16 @@ import minifyCssString from 'minify-css-string';
 import { fromJS } from 'immutable';
 import fromEntries from 'fromentries';
 import 'history';
-import { c as createStore, h as history, d as deliveryApi, p as pickProject, r as rootSaga } from './App-2986c3ce.js';
-export { A as ReactApp } from './App-2986c3ce.js';
+import { c as createStore, h as history, d as deliveryApi, p as pickProject, r as rootSaga } from './App-babb384c.js';
+export { A as ReactApp } from './App-babb384c.js';
 import 'contensis-delivery-api';
-import { s as setCurrentProject, a as selectRouteEntry, b as selectCurrentProject } from './routing-8265aea1.js';
+import { s as setCurrentProject, a as selectRouteEntry, b as selectCurrentProject } from './routing-920ca0ae.js';
 import 'redux';
 import 'redux-immutable';
 import 'redux-thunk';
 import 'redux-saga';
-import { s as setVersionStatus, a as setVersion } from './version-9c4c6e0e.js';
-import './login-a6f157c3.js';
+import { s as setVersionStatus, a as setVersion } from './version-fea56161.js';
+import './login-684376c7.js';
 import 'query-string';
 import 'redux-saga/effects';
 import 'loglevel';
@@ -36,7 +36,7 @@ import 'js-cookie';
 import { matchRoutes } from 'react-router-config';
 import 'react-hot-loader';
 import 'prop-types';
-import './RouteLoader-b1969ecd.js';
+import './RouteLoader-9bd2cf1a.js';
 
 const servers = SERVERS;
 /* global SERVERS */
@@ -206,7 +206,8 @@ const webApp = (app, ReactApp, config) => {
     allowedGroups,
     globalGroups,
     disableSsrRedux,
-    handleResponses
+    handleResponses,
+    withReducersImmer
   } = config;
   const bundles = {
     default: loadBundleData(config),
@@ -244,7 +245,7 @@ const webApp = (app, ReactApp, config) => {
 
     const store = createStore(withReducers, fromJS({}), history({
       initialEntries: [url]
-    })); //const store = createStore(withReducers);
+    }), withReducersImmer); //const store = createStore(withReducers);
     // dispatch any global and non-saga related actions before calling our JSX
 
     const versionStatusFromHostname = deliveryApi.getVersionStatusFromHostname(request.hostname);
