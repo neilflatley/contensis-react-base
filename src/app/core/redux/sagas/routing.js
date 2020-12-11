@@ -26,7 +26,6 @@ import { routeEntryByFieldsQuery } from './queries';
 import { ensureNodeTreeSaga } from './navigation';
 import { handleRequiresLoginSaga } from '~/features/login/redux/sagas/login';
 import { findContentTypeMapping } from '~/core/util/helpers';
-import { Map } from 'immutable';
 
 export const routingSagas = [
   takeEvery(SET_NAVIGATION_PATH, getRouteSaga),
@@ -330,11 +329,19 @@ function* setRouteEntry(
   entryMapper,
   notFound = false
 ) {
-  const id = (entry && entry.sys && entry.sys.id) || null;
+  const id = entry?.sys?.id || null;
   const currentEntryId = yield select(selectRouteEntryEntryId);
+  const currentMappedEntry = yield select(selectMappedEntry);
+  console.info(
+    `Current mapped entry (should be immutable map): ${currentMappedEntry}`
+  );
   const mappedEntry =
     currentEntryId === id
-      ? (yield select(selectMappedEntry) || Map()).toJS()
+      ? currentMappedEntry
+        ? currentMappedEntry.toJS
+          ? currentMappedEntry.toJS()
+          : currentMappedEntry
+        : {}
       : yield mapRouteEntry(entryMapper, {
           ...node,
           entry,

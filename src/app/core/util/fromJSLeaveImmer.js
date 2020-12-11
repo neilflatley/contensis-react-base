@@ -1,4 +1,4 @@
-import { Map } from 'immutable';
+import { OrderedMap } from 'immutable';
 import fromJSOrdered from './fromJSOrdered';
 
 const fromJSLeaveImmer = (js, immerFeatureRootProps = null) => {
@@ -6,7 +6,7 @@ const fromJSLeaveImmer = (js, immerFeatureRootProps = null) => {
   if (typeof js !== 'object' || js === null) return js;
   if (!immerFeatureRootProps || !Object.keys(immerFeatureRootProps).length)
     return fromJSOrdered(js);
-  const convertedObject = new Map({});
+  const convertedObject = OrderedMap();
   const keys = Object.keys(js);
   keys.forEach(key => {
     if (immerFeatureRootProps.indexOf(key) > -1) {
