@@ -5,31 +5,31 @@ Object.defineProperty(exports, '__esModule', { value: true });
 require('isomorphic-fetch');
 var Loadable = require('react-loadable');
 var React = require('react');
-var require$$9 = require('react-router-dom');
-var require$$4 = require('react-redux');
-var require$$0 = require('immutable');
+var reactRouterDom = require('react-router-dom');
+var reactRedux = require('react-redux');
+var immutable = require('immutable');
 require('history');
-var App = require('./App-625b19b8.js');
+var App = require('./App-0a6fe27b.js');
 require('contensis-delivery-api');
-var routing = require('./routing-2e5b7b4f.js');
+var routing = require('./routing-82e00e38.js');
 require('redux');
 require('redux-immutable');
 require('redux-thunk');
 require('redux-saga');
-var version = require('./version-b0defd1b.js');
-var login = require('./login-cfa2f42f.js');
+var version = require('./version-ff987c76.js');
+var login = require('./login-cd832c12.js');
 var queryString = require('query-string');
 require('redux-saga/effects');
 require('loglevel');
-require('./ToJs-caf909b4.js');
+require('./ToJs-8f6b21c9.js');
 require('contensis-management-api');
 require('jsonpath-mapper');
 require('await-to-js');
 require('js-cookie');
 require('react-router-config');
-var require$$10 = require('react-hot-loader');
+var reactHotLoader = require('react-hot-loader');
 require('prop-types');
-require('./RouteLoader-e8575dfd.js');
+require('./RouteLoader-ffcae515.js');
 var reactDom = require('react-dom');
 
 function _interopDefaultLegacy (e) { return e && typeof e === 'object' && 'default' in e ? e : { 'default': e }; }
@@ -41,7 +41,7 @@ const fromJSLeaveImmer = (js, immerFeatureRootProps = null) => {
   console.info(js);
   if (typeof js !== 'object' || js === null) return js;
   if (!immerFeatureRootProps || !Object.keys(immerFeatureRootProps).length) return login.fromJSOrdered(js);
-  const convertedObject = require$$0.OrderedMap();
+  const convertedObject = immutable.OrderedMap();
   const keys = Object.keys(js);
   keys.forEach(key => {
     if (immerFeatureRootProps.indexOf(key) > -1) {
@@ -66,9 +66,9 @@ class ClientApp {
     } = config;
 
     const GetClientJSX = store => {
-      const ClientJsx = React__default['default'].createElement(require$$10.AppContainer, null, React__default['default'].createElement(require$$4.Provider, {
+      const ClientJsx = React__default['default'].createElement(reactHotLoader.AppContainer, null, React__default['default'].createElement(reactRedux.Provider, {
         store: store
-      }, React__default['default'].createElement(require$$9.Router, {
+      }, React__default['default'].createElement(reactRouterDom.Router, {
         history: App.browserHistory
       }, React__default['default'].createElement(ReactApp, {
         routes: routes,

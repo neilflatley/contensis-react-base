@@ -1,6 +1,6 @@
 'use strict';
 
-var routing = require('./routing-2e5b7b4f.js');
+var routing = require('./routing-82e00e38.js');
 
 const ACTION_PREFIX = '@NAVIGATION/';
 const GET_NODE_TREE = `${ACTION_PREFIX}_GET_NODE_TREE`;
@@ -86,4 +86,4 @@ exports.setVersionStatus = setVersionStatus;
 exports.version = version;
 exports.version$1 = version$1;
 exports.version$2 = version$2;
-//# sourceMappingURL=version-b0defd1b.js.map
+//# sourceMappingURL=version-ff987c76.js.map
