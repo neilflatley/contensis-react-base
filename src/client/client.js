@@ -15,8 +15,8 @@ import { setVersionStatus } from '~/core/redux/actions/version';
 import { deliveryApi } from '~/core/util/ContensisDeliveryApi';
 import { setCurrentProject } from '~/core/redux/actions/routing';
 import pickProject from '~/core/util/pickProject';
-// import fromJSOrdered from '~/core/util/fromJSOrdered';
-import fromJSLeaveImmer from '~/core/util/fromJSLeaveImmer';
+import fromJSOrdered from '~/core/util/fromJSOrdered';
+// import fromJSLeaveImmer from '~/core/util/fromJSLeaveImmer';
 import { browserHistory as history } from '~/core/redux/history';
 
 export { default as ReactApp } from '~/App';
@@ -63,7 +63,8 @@ class ClientApp {
     ) {
       store = createStore(
         withReducers,
-        fromJSLeaveImmer(window.REDUX_DATA, true),
+        fromJSOrdered(window.REDUX_DATA),
+        // fromJSLeaveImmer(window.REDUX_DATA, true),
         history
       );
       store.dispatch(
@@ -89,8 +90,8 @@ class ClientApp {
           // console.log(data);
           /* eslint-enable no-console */
           const ssRedux = JSON.parse(data);
+          store = createStore(withReducers, fromJSOrdered(ssRedux), history);
           // store = createStore(withReducers, fromJSLeaveImmer(ssRedux), history);
-          store = createStore(withReducers, fromJSLeaveImmer(ssRedux), history);
           // store.dispatch(setVersionStatus(versionStatusFromHostname));
 
           store.runSaga(rootSaga(withSagas));
