@@ -3,7 +3,7 @@ import { preloadReady } from 'react-loadable';
 import React from 'react';
 import { Router } from 'react-router-dom';
 import { Provider } from 'react-redux';
-import { OrderedMap, fromJS } from 'immutable';
+import 'immutable';
 import 'history';
 import { d as deliveryApi, c as createStore, r as rootSaga, p as pickProject, b as browserHistory } from './App-190603f7.js';
 export { A as ReactApp } from './App-190603f7.js';
@@ -27,22 +27,6 @@ import { AppContainer } from 'react-hot-loader';
 import 'prop-types';
 import './RouteLoader-fc78472d.js';
 import { hydrate, render } from 'react-dom';
-
-const fromJSLeaveImmer = (js, isOrdered = false) => {
-  // console.info(js);
-  if (typeof js !== 'object' || js === null) return js; // console.info(`from js - here is js ${JSON.stringify(js)}`);
-
-  const convertedObject = isOrdered ? OrderedMap() : fromJS({});
-  const keys = Object.keys(js);
-  keys.forEach(key => {
-    if (key === 'immer') {
-      convertedObject.set(key, js[key]); // console.info(`LOOK! - immer untouched bar root key "${key}"`);
-    } else {
-      // console.info(`LOOK! - normal immutable feature "${key}"`);
-      convertedObject.set(key, isOrdered ? fromJSOrdered(js) : fromJS(js));
-    }
-  });
-};
 
 class ClientApp {
   constructor(ReactApp, config) {
@@ -82,8 +66,8 @@ class ClientApp {
     const versionStatusFromHostname = deliveryApi.getClientSideVersionStatus();
 
     if (window.isDynamic || window.REDUX_DATA || process.env.NODE_ENV !== 'production') {
-      store = createStore(withReducers, // fromJSOrdered(window.REDUX_DATA),
-      fromJSLeaveImmer(window.REDUX_DATA, true), browserHistory);
+      store = createStore(withReducers, fromJSOrdered(window.REDUX_DATA), // fromJSLeaveImmer(window.REDUX_DATA, true),
+      browserHistory);
       store.dispatch(setVersionStatus(qs.versionStatus || versionStatusFromHostname));
       /* eslint-disable no-console */
 
@@ -101,9 +85,9 @@ class ClientApp {
         // console.log(data);
 
         /* eslint-enable no-console */
-        const ssRedux = JSON.parse(data); // store = createStore(withReducers, fromJSOrdered(ssRedux), history);
-
-        store = createStore(withReducers, fromJSLeaveImmer(ssRedux), browserHistory); // store.dispatch(setVersionStatus(versionStatusFromHostname));
+        const ssRedux = JSON.parse(data);
+        store = createStore(withReducers, fromJSOrdered(ssRedux), browserHistory); // store = createStore(withReducers, fromJSLeaveImmer(ssRedux), history);
+        // store.dispatch(setVersionStatus(versionStatusFromHostname));
 
         store.runSaga(rootSaga(withSagas));
         store.dispatch(setCurrentProject(pickProject(window.location.hostname, queryString.parse(window.location.search)))); // if (typeof window != 'undefined') {
