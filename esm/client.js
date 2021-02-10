@@ -4,10 +4,9 @@ import React from 'react';
 import { Router } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import 'immutable';
-import './login-417f3f96.js';
-import { d as deliveryApi, c as createStore, f as fromJSLeaveImmer, r as rootSaga, p as pickProject, b as browserHistory } from './App-91bf86e0.js';
-export { A as ReactApp } from './App-91bf86e0.js';
 import 'history';
+import { d as deliveryApi, c as createStore, r as rootSaga, p as pickProject, b as browserHistory } from './App-190603f7.js';
+export { A as ReactApp } from './App-190603f7.js';
 import 'contensis-delivery-api';
 import { s as setCurrentProject } from './routing-64807af8.js';
 import 'redux';
@@ -15,6 +14,7 @@ import 'redux-immutable';
 import 'redux-thunk';
 import 'redux-saga';
 import { s as setVersionStatus } from './version-41f7c83e.js';
+import { f as fromJSOrdered } from './login-417f3f96.js';
 import queryString from 'query-string';
 import '@redux-saga/core/effects';
 import 'loglevel';
@@ -66,7 +66,8 @@ class ClientApp {
     const versionStatusFromHostname = deliveryApi.getClientSideVersionStatus();
 
     if (window.isDynamic || window.REDUX_DATA || process.env.NODE_ENV !== 'production') {
-      store = createStore(withReducers, fromJSLeaveImmer(window.REDUX_DATA, true), browserHistory);
+      store = createStore(withReducers, fromJSOrdered(window.REDUX_DATA), // fromJSLeaveImmer(window.REDUX_DATA, true),
+      browserHistory);
       store.dispatch(setVersionStatus(qs.versionStatus || versionStatusFromHostname));
       /* eslint-disable no-console */
 
@@ -84,9 +85,9 @@ class ClientApp {
         // console.log(data);
 
         /* eslint-enable no-console */
-        const ssRedux = JSON.parse(data); // store = createStore(withReducers, fromJSLeaveImmer(ssRedux), history);
-
-        store = createStore(withReducers, fromJSLeaveImmer(ssRedux), browserHistory); // store.dispatch(setVersionStatus(versionStatusFromHostname));
+        const ssRedux = JSON.parse(data);
+        store = createStore(withReducers, fromJSOrdered(ssRedux), browserHistory); // store = createStore(withReducers, fromJSLeaveImmer(ssRedux), history);
+        // store.dispatch(setVersionStatus(versionStatusFromHostname));
 
         store.runSaga(rootSaga(withSagas));
         store.dispatch(setCurrentProject(pickProject(window.location.hostname, queryString.parse(window.location.search)))); // if (typeof window != 'undefined') {
