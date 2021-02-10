@@ -18,6 +18,7 @@ import pickProject from '~/core/util/pickProject';
 import fromJSOrdered from '~/core/util/fromJSOrdered';
 // import fromJSLeaveImmer from '~/core/util/fromJSLeaveImmer';
 import { browserHistory as history } from '~/core/redux/history';
+import fromJSLeaveImmer from '~/core/util/fromJSLeaveImmer';
 
 export { default as ReactApp } from '~/App';
 
@@ -63,7 +64,7 @@ class ClientApp {
     ) {
       store = createStore(
         withReducers,
-        fromJSOrdered(window.REDUX_DATA),
+        fromJSLeaveImmer(window.REDUX_DATA),
         // fromJSLeaveImmer(window.REDUX_DATA, true),
         history
       );

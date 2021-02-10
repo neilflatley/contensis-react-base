@@ -36,6 +36,30 @@ function _interopDefaultLegacy (e) { return e && typeof e === 'object' && 'defau
 var React__default = /*#__PURE__*/_interopDefaultLegacy(React);
 var queryString__default = /*#__PURE__*/_interopDefaultLegacy(queryString);
 
+const fromJSLeaveImmer = js => {
+  // console.info(js);
+  // if (typeof js !== 'object' || js === null) return js;
+  // // console.info(`from js - here is js ${JSON.stringify(js)}`);
+  // const convertedObject = isOrdered ? OrderedMap() : fromJS({});
+  // const keys = Object.keys(js);
+  // keys.forEach(key => {
+  //   if (key === 'immer') {
+  //     convertedObject.set(key, js[key]);
+  //     // console.info(`LOOK! - immer untouched bar root key "${key}"`);
+  //   } else {
+  //     // console.info(`LOOK! - normal immutable feature "${key}"`);
+  //     convertedObject.set(key, isOrdered ? fromJSOrdered(js) : fromJS(js));
+  //   }
+  // });
+  const immutableObj = login.fromJSOrdered(js);
+
+  if (immutableObj && !!immutableObj.get('immer')) {
+    immutableObj.set('immer', immutableObj.get('immer').toJS());
+  }
+
+  return immutableObj;
+};
+
 class ClientApp {
   constructor(ReactApp, config) {
     const documentRoot = document.getElementById('root');
@@ -74,7 +98,7 @@ class ClientApp {
     const versionStatusFromHostname = App.deliveryApi.getClientSideVersionStatus();
 
     if (window.isDynamic || window.REDUX_DATA || process.env.NODE_ENV !== 'production') {
-      store = App.createStore(withReducers, login.fromJSOrdered(window.REDUX_DATA), // fromJSLeaveImmer(window.REDUX_DATA, true),
+      store = App.createStore(withReducers, fromJSLeaveImmer(window.REDUX_DATA), // fromJSLeaveImmer(window.REDUX_DATA, true),
       App.browserHistory);
       store.dispatch(version.setVersionStatus(qs.versionStatus || versionStatusFromHostname));
       /* eslint-disable no-console */
