@@ -3,31 +3,55 @@ import { preloadReady } from 'react-loadable';
 import React from 'react';
 import { Router } from 'react-router-dom';
 import { Provider } from 'react-redux';
-import { fromJS } from 'immutable';
+import 'immutable';
 import 'history';
-import { d as deliveryApi, c as createStore, r as rootSaga, p as pickProject, b as browserHistory } from './App-2986c3ce.js';
-export { A as ReactApp } from './App-2986c3ce.js';
+import { d as deliveryApi, r as rootSaga, p as pickProject, b as browserHistory } from './App-62f58957.js';
+export { A as ReactApp } from './App-62f58957.js';
 import 'contensis-delivery-api';
-import { s as setCurrentProject } from './routing-8265aea1.js';
+import { s as setCurrentProject } from './routing-7eff80b5.js';
 import 'redux';
 import 'redux-immutable';
 import 'redux-thunk';
 import 'redux-saga';
-import { s as setVersionStatus } from './version-9c4c6e0e.js';
-import { f as fromJSOrdered } from './login-a6f157c3.js';
+import { c as createStore, s as setVersionStatus } from './version-66d27412.js';
+import { f as fromJSOrdered } from './reducers-ed7581c0.js';
 import queryString from 'query-string';
-import 'redux-saga/effects';
+import '@redux-saga/core/effects';
 import 'loglevel';
 import './ToJs-1c73b10a.js';
-import 'contensis-management-api';
+import './login-81c0b522.js';
 import 'jsonpath-mapper';
 import 'await-to-js';
 import 'js-cookie';
 import 'react-router-config';
 import { AppContainer } from 'react-hot-loader';
 import 'prop-types';
-import './RouteLoader-b1969ecd.js';
+import './RouteLoader-0d9ab8ed.js';
 import { hydrate, render } from 'react-dom';
+
+const fromJSLeaveImmer = js => {
+  // console.info(js);
+  // if (typeof js !== 'object' || js === null) return js;
+  // // console.info(`from js - here is js ${JSON.stringify(js)}`);
+  // const convertedObject = isOrdered ? OrderedMap() : fromJS({});
+  // const keys = Object.keys(js);
+  // keys.forEach(key => {
+  //   if (key === 'immer') {
+  //     convertedObject.set(key, js[key]);
+  //     // console.info(`LOOK! - immer untouched bar root key "${key}"`);
+  //   } else {
+  //     // console.info(`LOOK! - normal immutable feature "${key}"`);
+  //     convertedObject.set(key, isOrdered ? fromJSOrdered(js) : fromJS(js));
+  //   }
+  // });
+  const immutableObj = fromJSOrdered(js);
+
+  if (immutableObj && !!immutableObj.get('immer')) {
+    immutableObj.set('immer', immutableObj.get('immer').toJS());
+  }
+
+  return immutableObj;
+};
 
 class ClientApp {
   constructor(ReactApp, config) {
@@ -67,7 +91,7 @@ class ClientApp {
     const versionStatusFromHostname = deliveryApi.getClientSideVersionStatus();
 
     if (window.isDynamic || window.REDUX_DATA || process.env.NODE_ENV !== 'production') {
-      store = createStore(withReducers, fromJSOrdered(window.REDUX_DATA), browserHistory);
+      store = createStore(withReducers, fromJSLeaveImmer(window.REDUX_DATA), browserHistory);
       store.dispatch(setVersionStatus(qs.versionStatus || versionStatusFromHostname));
       /* eslint-disable no-console */
 
@@ -86,7 +110,7 @@ class ClientApp {
 
         /* eslint-enable no-console */
         const ssRedux = JSON.parse(data);
-        store = createStore(withReducers, fromJS(ssRedux), browserHistory); // store.dispatch(setVersionStatus(versionStatusFromHostname));
+        store = createStore(withReducers, fromJSLeaveImmer(ssRedux), browserHistory); // store.dispatch(setVersionStatus(versionStatusFromHostname));
 
         store.runSaga(rootSaga(withSagas));
         store.dispatch(setCurrentProject(pickProject(window.location.hostname, queryString.parse(window.location.search)))); // if (typeof window != 'undefined') {

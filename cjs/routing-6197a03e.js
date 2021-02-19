@@ -28,6 +28,7 @@ const SET_NAVIGATION_PATH = `${ROUTING_PREFIX}_SET_NAVIGATION_PATH`;
 const SET_TARGET_PROJECT = `${ROUTING_PREFIX}_SET_TARGET_PROJECT`;
 const SET_ROUTE = `${ROUTING_PREFIX}_SET_ROUTE`;
 const CALL_HISTORY_METHOD = `${ROUTING_PREFIX}_CALL_HISTORY_METHOD`;
+const UPDATE_LOADING_STATE = `${ROUTING_PREFIX}_UPDATE_LOADING_STATE`;
 
 var routing = /*#__PURE__*/Object.freeze({
   __proto__: null,
@@ -42,7 +43,8 @@ var routing = /*#__PURE__*/Object.freeze({
   SET_NAVIGATION_PATH: SET_NAVIGATION_PATH,
   SET_TARGET_PROJECT: SET_TARGET_PROJECT,
   SET_ROUTE: SET_ROUTE,
-  CALL_HISTORY_METHOD: CALL_HISTORY_METHOD
+  CALL_HISTORY_METHOD: CALL_HISTORY_METHOD,
+  UPDATE_LOADING_STATE: UPDATE_LOADING_STATE
 });
 
 const setNotFound = notFound => action(SET_NAVIGATION_NOT_FOUND, {
@@ -108,6 +110,9 @@ const selectRouteEntryContentTypeId = state => {
   const entry = selectRouteEntry(state);
   return entry && entry.getIn(['sys', 'contentTypeId'], null);
 };
+const selectRouteEntryLanguage = state => {
+  return state.getIn(['routing', 'entry', 'sys', 'language'], null);
+};
 const selectRouteEntrySlug = state => {
   return state.getIn(['routing', 'entry', 'sys', 'slug'], null);
 };
@@ -151,6 +156,7 @@ var routing$2 = /*#__PURE__*/Object.freeze({
   selectCurrentTreeID: selectCurrentTreeID,
   selectRouteEntryEntryId: selectRouteEntryEntryId,
   selectRouteEntryContentTypeId: selectRouteEntryContentTypeId,
+  selectRouteEntryLanguage: selectRouteEntryLanguage,
   selectRouteEntrySlug: selectRouteEntrySlug,
   selectRouteEntryID: selectRouteEntryID,
   selectCurrentPath: selectCurrentPath,
@@ -173,6 +179,7 @@ exports.SET_ROUTE = SET_ROUTE;
 exports.SET_SIBLINGS = SET_SIBLINGS;
 exports.SET_SURROGATE_KEYS = SET_SURROGATE_KEYS;
 exports.SET_TARGET_PROJECT = SET_TARGET_PROJECT;
+exports.UPDATE_LOADING_STATE = UPDATE_LOADING_STATE;
 exports.action = action;
 exports.findContentTypeMapping = findContentTypeMapping;
 exports.queryParams = queryParams;
@@ -189,9 +196,10 @@ exports.selectMappedEntry = selectMappedEntry;
 exports.selectRouteEntry = selectRouteEntry;
 exports.selectRouteEntryContentTypeId = selectRouteEntryContentTypeId;
 exports.selectRouteEntryEntryId = selectRouteEntryEntryId;
+exports.selectRouteEntryLanguage = selectRouteEntryLanguage;
 exports.selectRouteLoading = selectRouteLoading;
 exports.setCurrentProject = setCurrentProject;
 exports.setNavigationPath = setNavigationPath;
 exports.setRoute = setRoute;
 exports.setSurrogateKeys = setSurrogateKeys;
-//# sourceMappingURL=routing-37e4f287.js.map
+//# sourceMappingURL=routing-6197a03e.js.map

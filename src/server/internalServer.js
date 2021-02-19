@@ -4,6 +4,7 @@ import Loadable from 'react-loadable';
 
 import DisplayStartupConfiguration from './util/displayStartupConfiguration';
 import ConfigureReverseProxies, { apiProxy } from './core/reverseProxies';
+import ServeStaticAssets from './core/staticAssets';
 import ConfigureWebApp from './core/webApp';
 
 const app = express();
@@ -17,9 +18,8 @@ const start = (ReactApp, config, ServerFeatures) => {
   // Set-up local proxy for images from cms, to save doing rewrites and extra code
   ServerFeatures(app);
   ConfigureReverseProxies(app, config.reverseProxyPaths);
+  ServeStaticAssets(app, config);
   ConfigureWebApp(app, ReactApp, config);
-
-  app.use('/static', express.static('dist/static', { maxage: '31557600h' }));
 
   app.on('ready', async () => {
     // Configure DNS to make life easier

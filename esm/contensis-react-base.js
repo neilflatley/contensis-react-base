@@ -3,6 +3,8 @@ import express from 'express';
 import Loadable from 'react-loadable';
 import httpProxy from 'http-proxy';
 import fs from 'fs';
+import path from 'path';
+import { resolve } from 'app-root-path';
 import React from 'react';
 import { StaticRouter } from 'react-router-dom';
 import { Provider } from 'react-redux';
@@ -13,30 +15,29 @@ import Helmet from 'react-helmet';
 import serialize from 'serialize-javascript';
 import minifyCssString from 'minify-css-string';
 import { fromJS } from 'immutable';
-import fromEntries from 'fromentries';
 import 'history';
-import { c as createStore, h as history, d as deliveryApi, p as pickProject, r as rootSaga } from './App-2986c3ce.js';
-export { A as ReactApp } from './App-2986c3ce.js';
+import { h as history, d as deliveryApi, p as pickProject, r as rootSaga } from './App-62f58957.js';
+export { A as ReactApp } from './App-62f58957.js';
 import 'contensis-delivery-api';
-import { s as setCurrentProject, a as selectRouteEntry, b as selectCurrentProject } from './routing-8265aea1.js';
+import { s as setCurrentProject, a as selectRouteEntry, b as selectCurrentProject } from './routing-7eff80b5.js';
 import 'redux';
 import 'redux-immutable';
 import 'redux-thunk';
 import 'redux-saga';
-import { s as setVersionStatus, a as setVersion } from './version-9c4c6e0e.js';
-import './login-a6f157c3.js';
+import { c as createStore, s as setVersionStatus, a as setVersion } from './version-66d27412.js';
+import './reducers-ed7581c0.js';
 import 'query-string';
-import 'redux-saga/effects';
+import '@redux-saga/core/effects';
 import 'loglevel';
 import './ToJs-1c73b10a.js';
-import 'contensis-management-api';
-import 'jsonpath-mapper';
+import './login-81c0b522.js';
+import mapJson from 'jsonpath-mapper';
 import 'await-to-js';
 import 'js-cookie';
 import { matchRoutes } from 'react-router-config';
 import 'react-hot-loader';
 import 'prop-types';
-import './RouteLoader-b1969ecd.js';
+import './RouteLoader-0d9ab8ed.js';
 
 const servers = SERVERS;
 /* global SERVERS */
@@ -97,12 +98,49 @@ const deliveryApiProxy = (apiProxy, app) => {
   });
 };
 
-const AccessMethods = {
-  DYNAMIC: 'dynamic',
-  STATIC: 'static',
-  FRAGMENT: 'fragment',
-  REDUX: 'redux'
+const replaceStaticPath = (string, staticFolderPath = 'static') => string.replace(/static\//g, `${staticFolderPath}/`);
+
+const bundleManipulationMiddleware = staticRoutePath => (req, res, next) => {
+  const filename = path.basename(req.path);
+  const modernBundle = filename.endsWith('.mjs');
+  const legacyBundle = filename.endsWith('.js');
+
+  if ((legacyBundle || modernBundle) && filename.startsWith('runtime.')) {
+    const jsRuntimeLocation = resolve(`/dist/static/${modernBundle ? 'modern/js' : 'legacy/js'}/${filename}`);
+
+    try {
+      const jsRuntimeBundle = fs.readFileSync(jsRuntimeLocation, 'utf8');
+      const modifiedBundle = replaceStaticPath(jsRuntimeBundle, staticRoutePath);
+      res.type('.js').send(modifiedBundle);
+      return;
+    } catch (readError) {
+      // eslint-disable-next-line no-console
+      console.log(`Unable to find js runtime bundle at '${jsRuntimeLocation}'`, readError);
+      next();
+    }
+  } else {
+    next();
+  }
 };
+
+const staticAssets = (app, {
+  staticRoutePath,
+  staticRoutePaths = [],
+  staticFolderPath = 'static'
+}) => {
+  app.use([`/${staticRoutePath}`, ...staticRoutePaths.map(p => `/${p}`), `/${staticFolderPath}`], bundleManipulationMiddleware(staticRoutePath), express.static(`dist/${staticFolderPath}`, {
+    maxage: '31557600h'
+  }));
+};
+
+/*! fromentries. MIT License. Feross Aboukhadijeh <https://feross.org/opensource> */
+var fromentries = function fromEntries (iterable) {
+  return [...iterable].reduce((obj, [key, val]) => {
+    obj[key] = val;
+    return obj
+  }, {})
+};
+
 const ResponseMethod = {
   send: 'send',
   json: 'json',
@@ -137,6 +175,8 @@ const addStandardHeaders = (state, response, packagejson, groups) => {
     } catch (e) {
       console.log('Error Adding headers', e.message); // console.log(e);
     }
+    /* eslint-enable no-console */
+
   }
 };
 
@@ -158,18 +198,18 @@ const addVarnishAuthenticationHeaders = (state, response, groups = {}) => {
 
       response.header('x-contensis-viewer-groups', allGroups.join('|'));
     } catch (e) {
-      console.log('Error adding authentication header');
-      console.log(e);
+      // eslint-disable-next-line no-console
+      console.log('Error adding authentication header', e);
     }
   }
 };
 
 const readFileSync = path => fs.readFileSync(path, 'utf8');
 
-const loadBundleData = ({
+const loadableBundleData = ({
   stats,
   templates
-}, build) => {
+}, staticRoutePath, build) => {
   const bundle = {};
 
   try {
@@ -181,9 +221,9 @@ const loadBundleData = ({
 
   try {
     bundle.templates = {
-      templateHTML: readFileSync(templates.html.replace('/target', build ? `/${build}` : '')),
-      templateHTMLStatic: readFileSync(templates.static.replace('/target', build ? `/${build}` : '')),
-      templateHTMLFragment: readFileSync(templates.fragment.replace('/target', build ? `/${build}` : ''))
+      templateHTML: replaceStaticPath(readFileSync(templates.html.replace('/target', build ? `/${build}` : '')), staticRoutePath),
+      templateHTMLStatic: replaceStaticPath(readFileSync(templates.static.replace('/target', build ? `/${build}` : '')), staticRoutePath),
+      templateHTMLFragment: replaceStaticPath(readFileSync(templates.fragment.replace('/target', build ? `/${build}` : '')), staticRoutePath)
     };
   } catch (ex) {
     //console.log(ex);
@@ -200,24 +240,24 @@ const webApp = (app, ReactApp, config) => {
     withSagas,
     withEvents,
     packagejson,
-    versionData,
+    staticFolderPath = 'static',
+    startupScriptFilename,
     differentialBundles,
-    dynamicPaths,
     allowedGroups,
     globalGroups,
     disableSsrRedux,
     handleResponses
   } = config;
-  const bundles = {
-    default: loadBundleData(config),
-    legacy: loadBundleData(config, 'legacy'),
-    modern: loadBundleData(config, 'modern')
+  const staticRoutePath = config.staticRoutePath || staticFolderPath;
+  const bundleData = {
+    default: loadableBundleData(config, staticRoutePath),
+    legacy: loadableBundleData(config, staticRoutePath, 'legacy'),
+    modern: loadableBundleData(config, staticRoutePath, 'modern')
   };
-  if (!bundles.default || bundles.default === {}) bundles.default = bundles.legacy || bundles.modern;
-  const versionInfo = JSON.parse(fs.readFileSync(versionData, 'utf8'));
+  if (!bundleData.default || bundleData.default === {}) bundleData.default = bundleData.legacy || bundleData.modern;
   const responseHandler = typeof handleResponses === 'function' ? handleResponses : handleResponse;
-  app.get('/*', (request, response, next) => {
-    if (request.originalUrl.startsWith('/static/')) return next();
+  const versionInfo = JSON.parse(fs.readFileSync(`dist/${staticFolderPath}/version.json`, 'utf8'));
+  app.get('/*', (request, response) => {
     const {
       url
     } = request;
@@ -226,28 +266,37 @@ const webApp = (app, ReactApp, config) => {
 
     const isStaticRoute = () => matchedStaticRoute().length > 0;
 
-    const staticRoute = isStaticRoute() && matchedStaticRoute()[0]; // Determine functional params and set access methods
+    const staticRoute = isStaticRoute() && matchedStaticRoute()[0]; // Allow certain routes to avoid SSR
 
-    let accessMethod = {};
-    const isDynamicNormalised = request.query.dynamic ? request.query.dynamic.toLowerCase() : 'false'; // Hack for certain pages to avoid SSR
+    const onlyDynamic = staticRoute && staticRoute.route.ssr === false;
 
-    const onlyDynamic = dynamicPaths.includes(request.path) || staticRoute && staticRoute.route.ssr === false;
-    const isReduxRequestNormalised = request.query.redux ? request.query.redux.toLowerCase() : 'false';
-    const isFragmentNormalised = request.query.fragment ? request.query.fragment.toLowerCase() : 'false';
-    const isStaticNormalised = request.query.static ? request.query.static.toLowerCase() : 'false';
-    if (onlyDynamic || isDynamicNormalised === 'true') accessMethod.DYNAMIC = AccessMethods.DYNAMIC;
-    if (isReduxRequestNormalised === 'true') accessMethod.REDUX = AccessMethods.REDUX;
-    if (isFragmentNormalised === 'true') accessMethod.FRAGMENT = AccessMethods.FRAGMENT;
-    if (isStaticNormalised === 'true') accessMethod.STATIC = AccessMethods.STATIC;
+    const normaliseQs = q => q && q.toLowerCase() === 'true' ? true : false; // Determine functional params from QueryString and set access methods
+
+
+    const accessMethod = mapJson(request.query, {
+      DYNAMIC: ({
+        dynamic
+      }) => normaliseQs(dynamic) || onlyDynamic,
+      REDUX: ({
+        redux
+      }) => normaliseQs(redux),
+      FRAGMENT: ({
+        fragment
+      }) => normaliseQs(fragment),
+      STATIC: ({
+        static: value
+      }) => normaliseQs(value)
+    });
     const context = {};
     let status = 200; // Create a store (with a memory history) from our current url
 
     const store = createStore(withReducers, fromJS({}), history({
       initialEntries: [url]
-    })); //const store = createStore(withReducers);
-    // dispatch any global and non-saga related actions before calling our JSX
+    })); // dispatch any global and non-saga related actions before calling our JSX
 
-    const versionStatusFromHostname = deliveryApi.getVersionStatusFromHostname(request.hostname);
+    const versionStatusFromHostname = deliveryApi.getVersionStatusFromHostname(request.hostname); // eslint-disable-next-line no-console
+
+    console.log(`Request for ${request.path} hostname: ${request.hostname} versionStatus: ${versionStatusFromHostname}`);
     store.dispatch(setVersionStatus(request.query.versionStatus || versionStatusFromHostname));
     store.dispatch(setVersion(versionInfo.commitRef, versionInfo.buildNo));
     const project = pickProject(request.hostname, request.query);
@@ -265,13 +314,20 @@ const webApp = (app, ReactApp, config) => {
       routes: routes,
       withEvents: withEvents
     }))));
-    /* eslint-disable no-console */
 
-    console.log(`Request for ${request.path} hostname: ${request.hostname} versionStatus: ${versionStatusFromHostname}`);
-    /* eslint-enable no-console */
+    const buildBundleTags = bundles => {
+      // Take the bundles returned from Loadable.Capture
+      const bundleTags = bundles.map(bundle => {
+        if (bundle.publicPath.includes('/modern/')) return differentialBundles ? `<script type="module" src="${replaceStaticPath(bundle.publicPath, staticRoutePath)}"></script>` : null;
+        return `<script nomodule src="${replaceStaticPath(bundle.publicPath, staticRoutePath)}"></script>`;
+      }).filter(f => f); // Add the static startup script to the bundleTags
 
-    const templates = bundles.default.templates || bundles.legacy.templates;
-    const stats = bundles.modern.stats && bundles.legacy.stats ? fromEntries(Object.entries(bundles.modern.stats).map(([lib, paths]) => [lib, bundles.legacy.stats[lib] ? [...paths, ...bundles.legacy.stats[lib]] : paths])) : bundles.default.stats;
+      startupScriptFilename && bundleTags.push(`<script src="/${staticRoutePath}/${startupScriptFilename}"></script>`);
+      return bundleTags;
+    };
+
+    const templates = bundleData.default.templates || bundleData.legacy.templates;
+    const stats = bundleData.modern.stats && bundleData.legacy.stats ? fromentries(Object.entries(bundleData.modern.stats).map(([lib, paths]) => [lib, bundleData.legacy.stats[lib] ? [...paths, ...bundleData.legacy.stats[lib]] : paths])) : bundleData.default.stats;
     const {
       templateHTML,
       templateHTMLFragment,
@@ -280,14 +336,13 @@ const webApp = (app, ReactApp, config) => {
 
     if (accessMethod.DYNAMIC) {
       // Dynamic doesn't need sagas
-      renderToString(jsx);
+      renderToString(jsx); // Dynamic page render has only the necessary bundles to start up the app
+      // and does not include any react-loadable code-split bundles
+
+      const loadableBundles = getBundles(stats, modules);
+      const bundleTags = buildBundleTags(loadableBundles).join('');
       const isDynamicHint = `<script>window.isDynamic = true;</script>`;
-      const dynamicBundles = getBundles(stats, modules);
-      const dynamicBundleScripts = dynamicBundles.map(bundle => {
-        if (bundle.publicPath.includes('/modern/')) return differentialBundles ? `<script type="module" src="${bundle.publicPath}"></script>` : null;
-        return `<script nomodule src="${bundle.publicPath}"></script>`;
-      }).filter(f => f).join('');
-      const responseHtmlDynamic = templateHTML.replace('{{TITLE}}', '').replace('{{SEO_CRITICAL_METADATA}}', '').replace('{{CRITICAL_CSS}}', '').replace('{{APP}}', '').replace('{{LOADABLE_CHUNKS}}', dynamicBundleScripts).replace('{{REDUX_DATA}}', isDynamicHint);
+      const responseHtmlDynamic = templateHTML.replace('{{TITLE}}', '').replace('{{SEO_CRITICAL_METADATA}}', '').replace('{{CRITICAL_CSS}}', '').replace('{{APP}}', '').replace('{{LOADABLE_CHUNKS}}', bundleTags).replace('{{REDUX_DATA}}', isDynamicHint);
       response.setHeader('Surrogate-Control', 'max-age=3600');
       response.status(status); //.send(responseHtmlDynamic);
 
@@ -301,6 +356,7 @@ const webApp = (app, ReactApp, config) => {
         const html = renderToString(sheet.collectStyles(jsx));
         const helmet = Helmet.renderStatic();
         Helmet.rewind();
+        const htmlAttributes = helmet.htmlAttributes.toString();
         let title = helmet.title.toString();
         const metadata = helmet.meta.toString();
 
@@ -314,15 +370,15 @@ const webApp = (app, ReactApp, config) => {
         }
 
         const reduxState = store.getState();
-        const styleTags = sheet.getStyleTags();
-        const bundles = getBundles(stats, modules);
-        const bundleScripts = bundles.map(bundle => {
-          if (bundle.publicPath.includes('/modern/')) return differentialBundles ? `<script type="module" src="${bundle.publicPath}"></script>` : null;
-          return `<script nomodule src="${bundle.publicPath}"></script>`;
-        }).filter(f => f).join('');
+        const styleTags = sheet.getStyleTags(); // After running rootSaga there should be an additional react-loadable
+        // code-split bundle for a page component as well as core app bundles
+
+        const loadableBundles = getBundles(stats, modules);
+        const bundleTags = buildBundleTags(loadableBundles).join('');
         let serialisedReduxData = '';
 
         if (context.status !== 404) {
+          // For a request that returns a redux state object as a response
           if (accessMethod.REDUX) {
             serialisedReduxData = serialize(reduxState, {
               ignoreFunction: true
@@ -346,7 +402,7 @@ const webApp = (app, ReactApp, config) => {
         }
 
         if (context.status === 404) {
-          accessMethod.STATIC = AccessMethods.STATIC;
+          accessMethod.STATIC = true;
         } // Responses
 
 
@@ -362,7 +418,7 @@ const webApp = (app, ReactApp, config) => {
 
 
         if (accessMethod.FRAGMENT && !accessMethod.STATIC) {
-          responseHTML = templateHTMLFragment.replace('{{TITLE}}', title).replace('{{SEO_CRITICAL_METADATA}}', metadata).replace('{{CRITICAL_CSS}}', minifyCssString(styleTags)).replace('{{APP}}', html).replace('{{LOADABLE_CHUNKS}}', bundleScripts).replace('{{REDUX_DATA}}', serialisedReduxData);
+          responseHTML = templateHTMLFragment.replace('{{TITLE}}', title).replace('{{SEO_CRITICAL_METADATA}}', metadata).replace('{{CRITICAL_CSS}}', minifyCssString(styleTags)).replace('{{APP}}', html).replace('{{LOADABLE_CHUNKS}}', bundleTags).replace('{{REDUX_DATA}}', serialisedReduxData);
         } // Full HTML page served statically
 
 
@@ -372,7 +428,7 @@ const webApp = (app, ReactApp, config) => {
 
 
         if (!accessMethod.FRAGMENT && !accessMethod.STATIC) {
-          responseHTML = templateHTML.replace('{{TITLE}}', title).replace('{{SEO_CRITICAL_METADATA}}', metadata).replace('{{CRITICAL_CSS}}', styleTags).replace('{{APP}}', html).replace('{{LOADABLE_CHUNKS}}', bundleScripts).replace('{{REDUX_DATA}}', serialisedReduxData);
+          responseHTML = templateHTML.replace('{{TITLE}}', title).replace('{{SEO_CRITICAL_METADATA}}', metadata).replace('{{CRITICAL_CSS}}', styleTags).replace('{{APP}}', html).replace('{{LOADABLE_CHUNKS}}', bundleTags).replace('{{REDUX_DATA}}', serialisedReduxData);
         }
 
         addStandardHeaders(reduxState, response, packagejson, {
@@ -381,6 +437,11 @@ const webApp = (app, ReactApp, config) => {
         });
 
         try {
+          // If react-helmet htmlAttributes are being used, replace the html tag with those attributes sepcified e.g (lang, dir etc.)
+          if (htmlAttributes) {
+            responseHTML = responseHTML.replace(/<html?.+?>/, `<html ${htmlAttributes}>`);
+          }
+
           response.status(status); //.send(responseHTML);
 
           responseHandler(request, response, responseHTML);
@@ -391,11 +452,8 @@ const webApp = (app, ReactApp, config) => {
       }).catch(err => {
         // Handle any error that occurred in any of the previous
         // promises in the chain.
-
-        /* eslint-disable no-console */
+        // eslint-disable-next-line no-console
         console.log(err);
-        /* eslint-enable no-console */
-
         response.status(500);
         responseHandler(request, response, `Error occurred: <br />${err.stack} <br />${JSON.stringify(err)}`); // .send(
         //   `Error occurred: <br />${err.stack} <br />${JSON.stringify(err)}`
@@ -416,10 +474,8 @@ const start = (ReactApp, config, ServerFeatures) => {
 
   ServerFeatures(app);
   reverseProxies(app, config.reverseProxyPaths);
+  staticAssets(app, config);
   webApp(app, ReactApp, config);
-  app.use('/static', express.static('dist/static', {
-    maxage: '31557600h'
-  }));
   app.on('ready', async () => {
     // Configure DNS to make life easier
     //await ConfigureLocalDNS();

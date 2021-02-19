@@ -8,6 +8,7 @@ import {
   SET_ROUTE,
   CALL_HISTORY_METHOD,
   SET_SIBLINGS,
+  UPDATE_LOADING_STATE,
 } from '~/core/redux/types/routing';
 import { cachedSearch, deliveryApi } from '~/core/util/ContensisDeliveryApi';
 import { selectVersionStatus } from '~/core/redux/selectors/version';
@@ -18,6 +19,7 @@ import {
   selectMappedEntry,
   selectRouteEntry,
   selectRouteEntryEntryId,
+  selectRouteEntryLanguage,
 } from '~/core/redux/selectors/routing';
 import { GET_NODE_TREE } from '../types/navigation';
 import { hasNavigationTree } from '../selectors/navigation';
@@ -79,7 +81,7 @@ function* getRouteSaga(action) {
 
     const entryLinkDepth = (appsays && appsays.entryLinkDepth) || 3;
     const setContentTypeLimits = !!ContentTypeMappings.find(
-      ct => ct.fields || ct.linkDepth
+      ct => ct.fields || ct.linkDepth || ct.nodeOptions
     );
 
     const state = yield select();
@@ -90,6 +92,7 @@ function* getRouteSaga(action) {
     const project = selectCurrentProject(state);
     const isHome = currentPath === '/';
     const isPreview = currentPath && currentPath.startsWith('/preview/');
+    const defaultLang = (appsays && appsays.defaultLang) || 'en-GB';
 
     // debugger;
     // routeEntry = Map({
@@ -121,6 +124,10 @@ function* getRouteSaga(action) {
         //   node: routeNode,
         //   isLoading: false,
         // });
+        yield put({
+          type: UPDATE_LOADING_STATE,
+          isLoading: false,
+        });
       } else
         yield call(
           setRouteEntry,
@@ -136,7 +143,7 @@ function* getRouteSaga(action) {
             depth: 0,
             entryFields: '*',
             entryLinkDepth,
-            language: 'en-GB',
+            language: defaultLang,
             versionStatus: deliveryApiStatus,
           },
           project
@@ -147,14 +154,23 @@ function* getRouteSaga(action) {
         if (isPreview) {
           let splitPath = currentPath.split('/');
           let entryGuid = splitPath[2];
-          if (splitPath.length == 3) {
+          let language = defaultLang;
+          if (splitPath.length >= 3) {
+            //set lang key if available in the path, else use default lang
+            //assumes preview url on content type is: http://preview.ALIAS.contensis.cloud/preview/{GUID}/{LANG}
+            if (splitPath.length == 4) language = splitPath[3];
             // According to product dev we cannot use Node API
             // for previewing entries as it gives a response of []
             // -- apparently it is not correct to request latest content
             // with Node API
+
             let previewEntry = yield deliveryApi
               .getClient(deliveryApiStatus, project)
-              .entries.get({ id: entryGuid, linkDepth: entryLinkDepth });
+              .entries.get({
+                id: entryGuid,
+                language,
+                linkDepth: entryLinkDepth,
+              });
             if (previewEntry) {
               pathNode = { entry: previewEntry };
               ({ entry } = pathNode || {});
@@ -162,12 +178,13 @@ function* getRouteSaga(action) {
           }
         } else {
           // Handle all other routes
+          const childrenDepth =
+            doNavigation === true || doNavigation.children === true
+              ? 1
+              : (doNavigation && doNavigation.children) || 0;
           pathNode = yield cachedSearch.getNode(
             {
-              depth:
-                doNavigation === true || doNavigation.children === true
-                  ? 3
-                  : (doNavigation && doNavigation.children) || 0,
+              depth: childrenDepth,
               path: currentPath,
               entryFields: setContentTypeLimits
                 ? ['sys.contentTypeId', 'sys.id']
@@ -186,23 +203,42 @@ function* getRouteSaga(action) {
             pathNode.entry.sys &&
             pathNode.entry.sys.id
           ) {
-            const { fields, linkDepth } =
+            // Get fields[] and linkDepth from ContentTypeMapping to get the entry data
+            // at a specified depth with specified fields
+            const { fields, linkDepth, nodeOptions = {} } =
               findContentTypeMapping(
                 ContentTypeMappings,
-                pathNode.entry.sys.id
+                pathNode.entry.sys.contentTypeId
               ) || {};
             const query = routeEntryByFieldsQuery(
               pathNode.entry.sys.id,
+              pathNode.entry.sys.language,
               fields,
               deliveryApiStatus
             );
             const payload = yield cachedSearch.search(
               query,
-              typeof linkDepth !== 'undefined' ? linkDepth : 3,
+              linkDepth || entryLinkDepth || 0,
               project
             );
             if (payload && payload.items && payload.items.length > 0) {
               pathNode.entry = payload.items[0];
+            }
+
+            if (childrenDepth > 0 || nodeOptions.children) {
+              const childrenOptions = nodeOptions.children || {};
+              // We need to make a separate call for child nodes if the first node query has been
+              // limited by linkDepth or fields[]
+              const childNodes = yield cachedSearch.getChildren({
+                id: pathNode.id,
+                entryFields: childrenOptions.fields || fields || '*',
+                entryLinkDepth:
+                  childrenOptions.linkDepth || linkDepth || entryLinkDepth || 0,
+                versionStatus: deliveryApiStatus,
+              });
+              if (childNodes) {
+                pathNode.children = childNodes;
+              }
             }
           }
         }
@@ -246,11 +282,15 @@ function* getRouteSaga(action) {
         (yield withEvents.onRouteLoaded({ ...action, entry })) || {});
     }
 
-    yield call(handleRequiresLoginSaga, {
-      ...action,
-      entry,
-      requireLogin,
-    });
+    if (requireLogin !== false) {
+      // Do not call the login feature saga if requireLogin is false
+      yield call(handleRequiresLoginSaga, {
+        ...action,
+        entry,
+        requireLogin,
+      });
+    }
+
     if (
       pathNode &&
       pathNode.entry &&
@@ -314,10 +354,12 @@ function* setRouteEntry(
   entryMapper,
   notFound = false
 ) {
-  const id = (entry && entry.sys && entry.sys.id) || null;
+  const entrySys = (entry && entry.sys) || {};
+
   const currentEntryId = yield select(selectRouteEntryEntryId);
+  const currentEntryLang = yield select(selectRouteEntryLanguage);
   const mappedEntry =
-    currentEntryId === id
+    currentEntryId === entrySys.id && currentEntryLang === entrySys.language
       ? (yield select(selectMappedEntry) || Map()).toJS()
       : yield mapRouteEntry(entryMapper, {
           ...node,
@@ -329,7 +371,7 @@ function* setRouteEntry(
   yield all([
     put({
       type: SET_ENTRY,
-      id,
+      id: entrySys.id,
       entry,
       mappedEntry,
       node,
@@ -361,6 +403,7 @@ function* mapRouteEntry(entryMapper, node) {
   return;
 }
 function* do404() {
+  //yield call(clientReloadHitServer);
   yield put({
     type: SET_ENTRY,
     id: null,
@@ -368,3 +411,18 @@ function* do404() {
     notFound: true,
   });
 }
+
+// function* clientReloadHitServer() {
+//   const stateEntry = yield select(selectRouteEntry);
+//   // If in client and there is a stateEntry.sys field reload the page,
+//   // on the 2nd load stateEntry.sys should be null at this point,
+//   // we do not wish to reload again and get stuck in an infinite reloading loop
+//   if (
+//     typeof window !== 'undefined' &&
+//     stateEntry &&
+//     stateEntry.get('sys', null)
+//   ) {
+//     // debugger;
+//     window.location.reload();
+//   }
+// }

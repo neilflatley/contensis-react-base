@@ -12,6 +12,7 @@ const {
   PROJECT,
   CONTENSIS_VERSION,
   WSFED_LOGIN,
+  STATIC_PATH = 'static',
 } = process.env;
 
 const PROJECTS = env => [
@@ -74,6 +75,8 @@ const development = {
   PUBLIC_URI: PUBLIC_URL,
   REVERSE_PROXY_PATHS,
   SERVERS,
+  STATIC_PATH: 'static',
+  STATIC_ROUTE_PATH: 'static',
   VERSION: packagejson.version,
   WSFED_LOGIN,
 };
@@ -84,6 +87,7 @@ const production = {
   ALLOWED_GROUPS,
   PROXY_DELIVERY_API: true,
   REVERSE_PROXY_PATHS,
+  STATIC_PATH,
   VERSION: packagejson.version,
 };
 

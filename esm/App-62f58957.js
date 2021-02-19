@@ -1,19 +1,20 @@
 import React from 'react';
-import { Map, List, fromJS, OrderedMap, Set } from 'immutable';
+import { Map } from 'immutable';
 import { createBrowserHistory, createMemoryHistory } from 'history';
 import { Client, Op, Query } from 'contensis-delivery-api';
-import { S as SET_TARGET_PROJECT, c as SET_SURROGATE_KEYS, d as SET_SIBLINGS, e as SET_ROUTE, f as SET_NAVIGATION_PATH, g as SET_ENTRY, h as SET_ANCESTORS, C as CALL_HISTORY_METHOD, i as setSurrogateKeys, b as selectCurrentProject, a as selectRouteEntry, j as selectCurrentNode, k as selectCurrentAncestors, l as findContentTypeMapping, m as selectRouteEntryEntryId, n as selectMappedEntry, q as queryParams, o as selectCurrentSearch, p as setRoute } from './routing-8265aea1.js';
-import { compose, applyMiddleware, createStore as createStore$1 } from 'redux';
-import { combineReducers } from 'redux-immutable';
-import thunk from 'redux-thunk';
-import createSagaMiddleware, { END } from 'redux-saga';
-import { G as GET_NODE_TREE_ERROR, S as SET_NODE_TREE, b as SET_VERSION, c as SET_VERSION_STATUS, d as GET_NODE_TREE, h as hasNavigationTree, e as selectVersionStatus } from './version-9c4c6e0e.js';
-import { U as UserReducer, h as handleRequiresLoginSaga, R as REGISTER_USER, a as REGISTER_USER_SUCCESS, b as REGISTER_USER_FAILED, l as loginSagas } from './login-a6f157c3.js';
-import { takeEvery, select, put, call, all } from 'redux-saga/effects';
+import { c as setSurrogateKeys, b as selectCurrentProject, S as SET_NAVIGATION_PATH, d as SET_ROUTE, C as CALL_HISTORY_METHOD, a as selectRouteEntry, U as UPDATE_LOADING_STATE, e as selectCurrentNode, f as selectCurrentAncestors, g as findContentTypeMapping, h as selectRouteEntryEntryId, i as selectRouteEntryLanguage, j as selectMappedEntry, k as SET_ENTRY, l as SET_ANCESTORS, m as SET_SIBLINGS, q as queryParams, n as selectCurrentSearch, o as setRoute } from './routing-7eff80b5.js';
+import 'redux';
+import 'redux-immutable';
+import 'redux-thunk';
+import 'redux-saga';
+import { r as reduxStore, G as GET_NODE_TREE, h as hasNavigationTree, b as selectVersionStatus, S as SET_NODE_TREE, d as GET_NODE_TREE_ERROR } from './version-66d27412.js';
+import { R as REGISTER_USER, a as REGISTER_USER_SUCCESS, b as REGISTER_USER_FAILED } from './reducers-ed7581c0.js';
+import { takeEvery, select, put, call, all } from '@redux-saga/core/effects';
 import { info, error } from 'loglevel';
+import { h as handleRequiresLoginSaga, l as loginSagas } from './login-81c0b522.js';
 import { to } from 'await-to-js';
 import 'react-hot-loader';
-import { R as RouteLoader } from './RouteLoader-b1969ecd.js';
+import { R as RouteLoader } from './RouteLoader-0d9ab8ed.js';
 
 const selectedHistory = typeof window !== 'undefined' ? createBrowserHistory : createMemoryHistory;
 const history = (options = {}) => selectedHistory(options);
@@ -61,233 +62,6 @@ const pickProject = (hostname, query) => {
 
   return project === 'unknown' ? p.id : project;
 };
-
-const initialState = Map({
-  root: null,
-  treeDepends: new List([]),
-  isError: false,
-  isReady: false
-});
-var NavigationReducer = ((state = initialState, action) => {
-  switch (action.type) {
-    case SET_NODE_TREE:
-      {
-        return state.set('root', fromJS(action.nodes)).set('isReady', true);
-      }
-
-    case GET_NODE_TREE_ERROR:
-      {
-        return state.set('isError', true);
-      }
-
-    default:
-      return state;
-  }
-});
-
-let initialState$1 = OrderedMap({
-  contentTypeId: null,
-  currentPath: '/',
-  currentNode: [],
-  currentNodeAncestors: List(),
-  currentProject: 'unknown',
-  entryID: null,
-  entry: null,
-  currentTreeId: null,
-  entryDepends: List(),
-  isLoading: false,
-  location: null,
-  mappedEntry: OrderedMap(),
-  nodeDepends: List(),
-  notFound: false,
-  staticRoute: null
-});
-var RoutingReducer = ((state = initialState$1, action) => {
-  switch (action.type) {
-    case SET_ANCESTORS:
-      {
-        if (action.ancestors) {
-          return state.set('currentNodeAncestors', fromJS(action.ancestors));
-        }
-
-        return state.set('currentNodeAncestors', fromJS(action.ancestors));
-      }
-
-    case SET_ENTRY:
-      {
-        const {
-          entry,
-          mappedEntry,
-          node = {},
-          isLoading = false,
-          notFound = false
-        } = action;
-        let nextState;
-
-        if (!entry) {
-          nextState = state.set('entryID', null).set('entry', null).set('mappedEntry', OrderedMap()).set('isLoading', isLoading).set('notFound', notFound);
-        } else {
-          nextState = state.set('entryID', action.id).set('entry', fromJS(entry)).set('isLoading', isLoading).set('notFound', notFound);
-          if (mappedEntry && Object.keys(mappedEntry) > 0) nextState = nextState.set('mappedEntry', fromJS(mappedEntry)).set('entry', fromJS({
-            sys: entry.sys
-          }));
-        }
-
-        if (!node) {
-          return nextState.set('nodeDepends', null).set('currentNode', null);
-        } else {
-          // On Set Node, we reset all dependants.
-          return nextState.set('currentNode', fromJS(node)).removeIn(['currentNode', 'entry']); // We have the entry stored elsewhere, so lets not keep it twice.
-        }
-      }
-
-    case SET_NAVIGATION_PATH:
-      {
-        let staticRoute = false;
-
-        if (action.staticRoute) {
-          staticRoute = { ...action.staticRoute
-          };
-        }
-
-        if (action.path) {
-          // Don't run a path update on initial load as we allready should have it in redux
-          const entryUri = state.getIn(['entry', 'sys', 'uri']);
-
-          if (entryUri != action.path) {
-            return state.set('currentPath', fromJS(action.path)).set('location', fromJS(action.location)).set('staticRoute', fromJS({ ...staticRoute,
-              route: { ...staticRoute.route,
-                component: null
-              }
-            })).set('isLoading', typeof window !== 'undefined');
-          } else {
-            return state.set('location', fromJS(action.location)).set('staticRoute', fromJS({ ...staticRoute,
-              route: { ...staticRoute.route,
-                component: null
-              }
-            }));
-          }
-        }
-
-        return state;
-      }
-
-    case SET_ROUTE:
-      {
-        return state.set('nextPath', action.path);
-      }
-
-    case SET_SIBLINGS:
-      {
-        // Can be null in some cases like the homepage.
-        let currentNodeSiblingParent = null;
-        let siblingIDs = [];
-
-        if (action.siblings && action.siblings.length > 0) {
-          currentNodeSiblingParent = action.siblings[0].parentId;
-          siblingIDs = action.siblings.map(node => {
-            return node.id;
-          });
-        }
-
-        let currentNodeDepends = state.get('nodeDepends');
-        const allNodeDepends = Set.union([Set(siblingIDs), currentNodeDepends]);
-        return state.set('nodeDepends', allNodeDepends).set('currentNodeSiblings', fromJS(action.siblings)).set('currentNodeSiblingsParent', currentNodeSiblingParent);
-      }
-
-    case SET_SURROGATE_KEYS:
-      {
-        return state.set('surrogateKeys', action.keys);
-      }
-
-    case SET_TARGET_PROJECT:
-      {
-        return state.set('currentProject', action.project).set('currentTreeId', '') //getTreeID(action.project))
-        .set('allowedGroups', fromJS(action.allowedGroups));
-      }
-
-    default:
-      return state;
-  }
-});
-
-let initialState$2 = Map({
-  commitRef: null,
-  buildNo: null,
-  contensisVersionStatus: 'published'
-});
-var VersionReducer = ((state = initialState$2, action) => {
-  switch (action.type) {
-    case SET_VERSION_STATUS:
-      {
-        return state.set('contensisVersionStatus', action.status);
-      }
-
-    case SET_VERSION:
-      {
-        return state.set('commitRef', action.commitRef).set('buildNo', action.buildNo);
-      }
-
-    default:
-      return state;
-  }
-});
-
-/**
- * This middleware captures CALL_HISTORY_METHOD actions to redirect to the
- * provided history object. This will prevent these actions from reaching your
- * reducer or any middleware that comes after this one.
- */
-
-/* eslint-disable no-unused-vars */
-
-const routerMiddleware = history => store => next => action => {
-  if (action.type !== CALL_HISTORY_METHOD) {
-    return next(action);
-  }
-
-  const {
-    payload: {
-      method,
-      args
-    }
-  } = action;
-  history[method](...args);
-};
-
-let reduxStore = null;
-var createStore = ((featureReducers, initialState, history) => {
-  const thunkMiddleware = [thunk];
-
-  let reduxDevToolsMiddleware = f => f;
-
-  if (typeof window != 'undefined') {
-    reduxDevToolsMiddleware = window.__REDUX_DEVTOOLS_EXTENSION__ ? window.__REDUX_DEVTOOLS_EXTENSION__() : f => f;
-  }
-
-  const sagaMiddleware = createSagaMiddleware();
-  const middleware = compose(applyMiddleware(...thunkMiddleware, sagaMiddleware, routerMiddleware(history)), reduxDevToolsMiddleware);
-  let reducers = {
-    navigation: NavigationReducer,
-    routing: RoutingReducer,
-    user: UserReducer,
-    version: VersionReducer,
-    ...featureReducers
-  };
-  const combinedReducers = combineReducers(reducers);
-
-  const store = initialState => {
-    const store = createStore$1(combinedReducers, initialState, middleware);
-    store.runSaga = sagaMiddleware.run;
-
-    store.close = () => store.dispatch(END);
-
-    return store;
-  };
-
-  reduxStore = store(initialState);
-  return reduxStore;
-});
 
 const storeSurrogateKeys = response => {
   const keys = response.headers.get ? response.headers.get('surrogate-key') : response.headers.map['surrogate-key'];
@@ -623,8 +397,8 @@ const defaultExpressions = versionStatus => {
 const equalToOrIn = (field, arr, operator = 'equalTo') => arr.length === 0 ? [] : arr.length === 1 ? [Op[operator](field, arr[0])] : [Op.in(field, ...arr)];
 
 // eslint-disable-next-line import/named
-const routeEntryByFieldsQuery = (id, fields = [], versionStatus = 'published') => {
-  const query = new Query(...[...fieldExpression('sys.id', id), ...defaultExpressions(versionStatus)]);
+const routeEntryByFieldsQuery = (id, language = 'en-GB', fields = [], versionStatus = 'published') => {
+  const query = new Query(...[...fieldExpression('sys.id', id), ...fieldExpression('sys.language', language), ...defaultExpressions(versionStatus)]);
   query.fields = fields;
   return query;
 };
@@ -675,7 +449,7 @@ function* getRouteSaga(action) {
 
     const doNavigation = !appsays || (appsays && appsays.customNavigation === true ? false : appsays && appsays.customNavigation || true);
     const entryLinkDepth = appsays && appsays.entryLinkDepth || 3;
-    const setContentTypeLimits = !!ContentTypeMappings.find(ct => ct.fields || ct.linkDepth);
+    const setContentTypeLimits = !!ContentTypeMappings.find(ct => ct.fields || ct.linkDepth || ct.nodeOptions);
     const state = yield select();
     const routeEntry = selectRouteEntry(state); // const routeNode = selectCurrentNode(state);
 
@@ -684,7 +458,8 @@ function* getRouteSaga(action) {
     const deliveryApiStatus = selectVersionStatus(state);
     const project = selectCurrentProject(state);
     const isHome = currentPath === '/';
-    const isPreview = currentPath && currentPath.startsWith('/preview/'); // debugger;
+    const isPreview = currentPath && currentPath.startsWith('/preview/');
+    const defaultLang = appsays && appsays.defaultLang || 'en-GB'; // debugger;
     // routeEntry = Map({
     //   entryTitle: 'fake entry',
     //   title: 'fakey entry',
@@ -705,6 +480,11 @@ function* getRouteSaga(action) {
         //   node: routeNode,
         //   isLoading: false,
         // });
+
+        yield put({
+          type: UPDATE_LOADING_STATE,
+          isLoading: false
+        });
       } else yield call(setRouteEntry, routeEntry && routeEntry.toJS(), (yield select(selectCurrentNode)), (yield select(selectCurrentAncestors)));
     } else {
       // Handle homepage
@@ -713,7 +493,7 @@ function* getRouteSaga(action) {
           depth: 0,
           entryFields: '*',
           entryLinkDepth,
-          language: 'en-GB',
+          language: defaultLang,
           versionStatus: deliveryApiStatus
         }, project);
         ({
@@ -724,14 +504,19 @@ function* getRouteSaga(action) {
         if (isPreview) {
           let splitPath = currentPath.split('/');
           let entryGuid = splitPath[2];
+          let language = defaultLang;
 
-          if (splitPath.length == 3) {
-            // According to product dev we cannot use Node API
+          if (splitPath.length >= 3) {
+            //set lang key if available in the path, else use default lang
+            //assumes preview url on content type is: http://preview.ALIAS.contensis.cloud/preview/{GUID}/{LANG}
+            if (splitPath.length == 4) language = splitPath[3]; // According to product dev we cannot use Node API
             // for previewing entries as it gives a response of []
             // -- apparently it is not correct to request latest content
             // with Node API
+
             let previewEntry = yield deliveryApi.getClient(deliveryApiStatus, project).entries.get({
               id: entryGuid,
+              language,
               linkDepth: entryLinkDepth
             });
 
@@ -746,8 +531,9 @@ function* getRouteSaga(action) {
           }
         } else {
           // Handle all other routes
+          const childrenDepth = doNavigation === true || doNavigation.children === true ? 1 : doNavigation && doNavigation.children || 0;
           pathNode = yield cachedSearch.getNode({
-            depth: doNavigation === true || doNavigation.children === true ? 3 : doNavigation && doNavigation.children || 0,
+            depth: childrenDepth,
             path: currentPath,
             entryFields: setContentTypeLimits ? ['sys.contentTypeId', 'sys.id'] : '*',
             entryLinkDepth: setContentTypeLimits ? 0 : entryLinkDepth,
@@ -758,15 +544,34 @@ function* getRouteSaga(action) {
           } = pathNode || {});
 
           if (setContentTypeLimits && pathNode && pathNode.entry && pathNode.entry.sys && pathNode.entry.sys.id) {
+            // Get fields[] and linkDepth from ContentTypeMapping to get the entry data
+            // at a specified depth with specified fields
             const {
               fields,
-              linkDepth
-            } = findContentTypeMapping(ContentTypeMappings, pathNode.entry.sys.id) || {};
-            const query = routeEntryByFieldsQuery(pathNode.entry.sys.id, fields, deliveryApiStatus);
-            const payload = yield cachedSearch.search(query, typeof linkDepth !== 'undefined' ? linkDepth : 3, project);
+              linkDepth,
+              nodeOptions = {}
+            } = findContentTypeMapping(ContentTypeMappings, pathNode.entry.sys.contentTypeId) || {};
+            const query = routeEntryByFieldsQuery(pathNode.entry.sys.id, pathNode.entry.sys.language, fields, deliveryApiStatus);
+            const payload = yield cachedSearch.search(query, linkDepth || entryLinkDepth || 0, project);
 
             if (payload && payload.items && payload.items.length > 0) {
               pathNode.entry = payload.items[0];
+            }
+
+            if (childrenDepth > 0 || nodeOptions.children) {
+              const childrenOptions = nodeOptions.children || {}; // We need to make a separate call for child nodes if the first node query has been
+              // limited by linkDepth or fields[]
+
+              const childNodes = yield cachedSearch.getChildren({
+                id: pathNode.id,
+                entryFields: childrenOptions.fields || fields || '*',
+                entryLinkDepth: childrenOptions.linkDepth || linkDepth || entryLinkDepth || 0,
+                versionStatus: deliveryApiStatus
+              });
+
+              if (childNodes) {
+                pathNode.children = childNodes;
+              }
             }
           }
         }
@@ -807,10 +612,13 @@ function* getRouteSaga(action) {
       })) || {});
     }
 
-    yield call(handleRequiresLoginSaga, { ...action,
-      entry,
-      requireLogin
-    });
+    if (requireLogin !== false) {
+      // Do not call the login feature saga if requireLogin is false
+      yield call(handleRequiresLoginSaga, { ...action,
+        entry,
+        requireLogin
+      });
+    }
 
     if (pathNode && pathNode.entry && pathNode.entry.sys && pathNode.entry.sys.id) {
       entry = pathNode.entry;
@@ -846,16 +654,17 @@ function* getRouteSaga(action) {
 }
 
 function* setRouteEntry(entry, node, ancestors, siblings, entryMapper, notFound = false) {
-  const id = entry && entry.sys && entry.sys.id || null;
+  const entrySys = entry && entry.sys || {};
   const currentEntryId = yield select(selectRouteEntryEntryId);
-  const mappedEntry = currentEntryId === id ? (yield select(selectMappedEntry) || Map()).toJS() : yield mapRouteEntry(entryMapper, { ...node,
+  const currentEntryLang = yield select(selectRouteEntryLanguage);
+  const mappedEntry = currentEntryId === entrySys.id && currentEntryLang === entrySys.language ? (yield select(selectMappedEntry) || Map()).toJS() : yield mapRouteEntry(entryMapper, { ...node,
     entry,
     ancestors,
     siblings
   });
   yield all([put({
     type: SET_ENTRY,
-    id,
+    id: entrySys.id,
     entry,
     mappedEntry,
     node,
@@ -884,13 +693,27 @@ function* mapRouteEntry(entryMapper, node) {
 }
 
 function* do404() {
+  //yield call(clientReloadHitServer);
   yield put({
     type: SET_ENTRY,
     id: null,
     entry: null,
     notFound: true
   });
-}
+} // function* clientReloadHitServer() {
+//   const stateEntry = yield select(selectRouteEntry);
+//   // If in client and there is a stateEntry.sys field reload the page,
+//   // on the 2nd load stateEntry.sys should be null at this point,
+//   // we do not wish to reload again and get stuck in an infinite reloading loop
+//   if (
+//     typeof window !== 'undefined' &&
+//     stateEntry &&
+//     stateEntry.get('sys', null)
+//   ) {
+//     // debugger;
+//     window.location.reload();
+//   }
+// }
 
 const registerSagas = [takeEvery(REGISTER_USER, registerSaga), takeEvery(REGISTER_USER_SUCCESS, redirectSaga)];
 
@@ -981,5 +804,5 @@ const AppRoot = props => {
   return React.createElement(RouteLoader, props);
 };
 
-export { AppRoot as A, browserHistory as b, createStore as c, deliveryApi as d, history as h, pickProject as p, rootSaga as r };
-//# sourceMappingURL=App-2986c3ce.js.map
+export { AppRoot as A, browserHistory as b, deliveryApi as d, history as h, pickProject as p, rootSaga as r };
+//# sourceMappingURL=App-62f58957.js.map

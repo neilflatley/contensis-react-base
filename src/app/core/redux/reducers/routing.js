@@ -7,6 +7,7 @@ import {
   SET_ROUTE,
   SET_SIBLINGS,
   SET_SURROGATE_KEYS,
+  UPDATE_LOADING_STATE,
 } from '~/core/redux/types/routing';
 
 let initialState = OrderedMap({
@@ -59,7 +60,7 @@ export default (state = initialState, action) => {
           .set('isLoading', isLoading)
           .set('notFound', notFound);
 
-        if (mappedEntry && Object.keys(mappedEntry) > 0)
+        if (mappedEntry && Object.keys(mappedEntry).length > 0)
           nextState = nextState
             .set('mappedEntry', fromJS(mappedEntry))
             .set('entry', fromJS({ sys: entry.sys }));
@@ -73,6 +74,9 @@ export default (state = initialState, action) => {
           .set('currentNode', fromJS(node))
           .removeIn(['currentNode', 'entry']); // We have the entry stored elsewhere, so lets not keep it twice.
       }
+    }
+    case UPDATE_LOADING_STATE: {
+      return state.set('isLoading', action.isLoading);
     }
     case SET_NAVIGATION_PATH: {
       let staticRoute = false;
