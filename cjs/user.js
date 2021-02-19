@@ -5,11 +5,11 @@ Object.defineProperty(exports, '__esModule', { value: true });
 require('react');
 var reactRedux = require('react-redux');
 require('immutable');
-var selectors = require('./selectors-0fe2c691.js');
+var selectors = require('./selectors-4e2a4fe0.js');
 require('query-string');
-var sagas = require('./sagas-6cbd425c.js');
-var actions = require('./actions-f35631ea.js');
-require('redux-saga/effects');
+var sagas = require('./sagas-6d255dcc.js');
+var actions = require('./actions-7064591c.js');
+require('@redux-saga/core/effects');
 require('js-cookie');
 var ToJs = require('./ToJs-d548b71b.js');
 
