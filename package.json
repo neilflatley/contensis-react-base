@@ -1,6 +1,6 @@
 {
   "name": "@zengenti/contensis-react-base",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "repository": "https://gitlab.zengenti.com/ps-projects/zengenti-base/zen-base/tree/isomorphic-base",
   "license": "None",
   "description": "",
@@ -106,6 +106,7 @@
   },
   "dependencies": {
     "@hot-loader/react-dom": "16.11.0",
+    "app-root-path": "^3.0.0",
     "contensis-delivery-api": "^1.1.0",
     "custom-env": "^1.0.2",
     "dateformat": "^3.0.3",
