@@ -1,7 +1,7 @@
 {
   "name": "@zengenti/contensis-react-base",
-  "version": "2.1.0",
-  "repository": "https://gitlab.zengenti.com/ps-projects/zengenti-base/zen-base/tree/contensis-react-base-v2",
+  "version": "2.1.1",
+  "repository": "https://gitlab.zengenti.com/ps-projects/zengenti-base/zen-base/tree/isomorphic-base",
   "license": "None",
   "description": "",
   "main": "cjs/contensis-react-base.js",
