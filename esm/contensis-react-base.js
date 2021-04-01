@@ -17,18 +17,18 @@ import serialize from 'serialize-javascript';
 import minifyCssString from 'minify-css-string';
 import { fromJS } from 'immutable';
 import 'history';
-import { h as history, p as pickProject, r as rootSaga } from './App-62f0950c.js';
-export { A as ReactApp } from './App-62f0950c.js';
+import { h as history, p as pickProject, r as rootSaga } from './App-fe4ec95b.js';
+export { A as ReactApp } from './App-fe4ec95b.js';
 import 'contensis-delivery-api';
-import { c as createStore, G as GetDeliveryApiStatusFromHostname, s as setVersionStatus, a as setVersion } from './navigation-9935e631.js';
-import { s as selectEntryDepends, a as selectNodeDepends, b as selectCurrentTreeID, c as selectRouteEntry, d as selectCurrentProject } from './selectors-93653e5b.js';
-import { s as setCurrentProject } from './routing-9ef18a63.js';
+import { c as createStore, G as GetDeliveryApiStatusFromHostname, s as setVersionStatus, a as setVersion } from './navigation-55ccfe56.js';
+import { s as selectEntryDepends, a as selectNodeDepends, b as selectCurrentTreeID, c as selectRouteEntry, d as selectCurrentProject } from './selectors-5b478abf.js';
+import { s as setCurrentProject } from './routing-3f02e5ea.js';
 import 'query-string';
 import 'redux';
 import 'redux-immutable';
 import 'redux-thunk';
 import 'redux-saga';
-import './sagas-54a94258.js';
+import './sagas-bb225af4.js';
 import '@redux-saga/core/effects';
 import 'js-cookie';
 import './ToJs-1649f545.js';
@@ -37,7 +37,7 @@ import { matchRoutes } from 'react-router-config';
 import mapJson from 'jsonpath-mapper';
 import 'react-hot-loader';
 import 'prop-types';
-import './RouteLoader-5312c2c7.js';
+import './RouteLoader-02c01331.js';
 
 const servers = SERVERS;
 /* global SERVERS */
@@ -144,6 +144,19 @@ const deliveryApiProxy = (apiProxy, app) => {
   });
 };
 
+const CacheDuration = {
+  200: '3600',
+  404: '5',
+  static: '31536000',
+  // Believe it or not these two max ages are the same in runtime
+  expressStatic: '31557600h' // Believe it or not these two max ages are the same in runtime
+
+};
+const getCacheDuration = (status = 200) => {
+  if (status > 400) return CacheDuration[404];
+  return CacheDuration[200];
+};
+
 const replaceStaticPath = (string, staticFolderPath = 'static') => string.replace(/static\//g, `${staticFolderPath}/`);
 
 const bundleManipulationMiddleware = (staticRoutePath, {
@@ -178,9 +191,13 @@ const staticAssets = (app, {
   staticFolderPath = 'static'
 }) => {
   app.use([`/${staticRoutePath}`, ...staticRoutePaths.map(p => `/${p}`), `/${staticFolderPath}`], bundleManipulationMiddleware(staticRoutePath, {
-    maxage: '31557600'
+    // these maxage values are different in config but the same in runtime,
+    // this one is the true value in seconds
+    maxage: CacheDuration.static
   }), express.static(`dist/${staticFolderPath}`, {
-    maxage: '31557600'
+    // these maxage values are different in config but the same in runtime,
+    // this one is somehow converted and should end up being the same as CacheDuration.static
+    maxage: CacheDuration.expressStatic
   }));
 };
 
@@ -229,12 +246,11 @@ const hashKeys = keys => {
 
 const addStandardHeaders = (state, response, packagejson, groups) => {
   if (state) {
-    /* eslint-disable no-console */
     try {
-      console.log('About to add header');
+      console.info('About to add header');
       let entryDepends = selectEntryDepends(state);
       entryDepends = Array.from(entryDepends || {});
-      console.log(`entryDepends count: ${entryDepends.length}`);
+      console.info(`entryDepends count: ${entryDepends.length}`);
       let nodeDepends = selectNodeDepends(state).toJS();
       let currentTreeId = selectCurrentTreeID(state);
       let nodeDependsKeys = nodeDepends.map(nodeKey => {
@@ -244,15 +260,13 @@ const addStandardHeaders = (state, response, packagejson, groups) => {
       const allDependsHashed = hashKeys(allDepends);
       const surrogateKeyHeader = packagejson.name == 'os-main' ? ` ${packagejson.name}-app ${allDependsHashed.join(' ')} ${allDepends.join(' ')}` : ` ${packagejson.name}-app ${allDependsHashed.join(' ')}`;
       response.header('surrogate-key', surrogateKeyHeader);
-      console.log(`depends hashed: ${allDependsHashed.join(' ')}`);
-      console.log(`depends hashed: ${allDepends.join(' ')}`);
+      console.info(`depends hashed: ${allDependsHashed.join(' ')}`);
+      console.info(`depends hashed: ${allDepends.join(' ')}`);
       addVarnishAuthenticationHeaders(state, response, groups);
-      response.setHeader('Surrogate-Control', 'max-age=3600');
+      response.setHeader('Surrogate-Control', `max-age=${getCacheDuration(response.statusCode)}`);
     } catch (e) {
-      console.log('Error Adding headers', e.message); // console.log(e);
+      console.info('Error Adding headers', e.message);
     }
-    /* eslint-enable no-console */
-
   }
 };
 
@@ -264,7 +278,7 @@ const addVarnishAuthenticationHeaders = (state, response, groups = {}) => {
       const {
         globalGroups,
         allowedGroups
-      } = groups; // console.log(globalGroups, allowedGroups);
+      } = groups; // console.info(globalGroups, allowedGroups);
 
       let allGroups = Array.from(globalGroups && globalGroups[project] || {});
 
@@ -274,8 +288,7 @@ const addVarnishAuthenticationHeaders = (state, response, groups = {}) => {
 
       response.header('x-contensis-viewer-groups', allGroups.join('|'));
     } catch (e) {
-      // eslint-disable-next-line no-console
-      console.log('Error adding authentication header', e);
+      console.info('Error adding authentication header', e);
     }
   }
 };
@@ -291,7 +304,7 @@ const loadableBundleData = ({
   try {
     bundle.stats = JSON.parse(readFileSync(stats.replace('/target', build ? `/${build}` : '')));
   } catch (ex) {
-    //console.log(ex);
+    //console.info(ex);
     bundle.stats = null;
   }
 
@@ -302,7 +315,7 @@ const loadableBundleData = ({
       templateHTMLFragment: replaceStaticPath(readFileSync(templates.fragment.replace('/target', build ? `/${build}` : '')), staticRoutePath)
     };
   } catch (ex) {
-    //console.log(ex);
+    //console.info(ex);
     bundle.templates = null;
   }
 
@@ -363,16 +376,16 @@ const webApp = (app, ReactApp, config) => {
         static: value
       }) => normaliseQs(value)
     });
-    const context = {};
-    let status = 200; // Create a store (with a memory history) from our current url
+    const context = {}; // Track the current statusCode via the response object
+
+    response.status(200); // Create a store (with a memory history) from our current url
 
     const store = createStore(withReducers, fromJS({}), history({
       initialEntries: [url]
     })); // dispatch any global and non-saga related actions before calling our JSX
 
-    const versionStatusFromHostname = GetDeliveryApiStatusFromHostname(request.hostname); // eslint-disable-next-line no-console
-
-    console.log(`Request for ${request.path} hostname: ${request.hostname} versionStatus: ${versionStatusFromHostname}`);
+    const versionStatusFromHostname = GetDeliveryApiStatusFromHostname(request.hostname);
+    console.info(`Request for ${request.path} hostname: ${request.hostname} versionStatus: ${versionStatusFromHostname}`);
     store.dispatch(setVersionStatus(request.query.versionStatus || versionStatusFromHostname));
     store.dispatch(setVersion(versionInfo.commitRef, versionInfo.buildNo));
     const project = pickProject(request.hostname, request.query);
@@ -418,10 +431,10 @@ const webApp = (app, ReactApp, config) => {
       const loadableBundles = getBundles(stats, modules);
       const bundleTags = buildBundleTags(loadableBundles).join('');
       const isDynamicHint = `<script>window.isDynamic = true;</script>`;
-      const responseHtmlDynamic = templateHTML.replace('{{TITLE}}', '').replace('{{SEO_CRITICAL_METADATA}}', '').replace('{{CRITICAL_CSS}}', '').replace('{{APP}}', '').replace('{{LOADABLE_CHUNKS}}', bundleTags).replace('{{REDUX_DATA}}', isDynamicHint);
-      response.setHeader('Surrogate-Control', 'max-age=3600');
-      response.status(status); //.send(responseHtmlDynamic);
+      const responseHtmlDynamic = templateHTML.replace('{{TITLE}}', '').replace('{{SEO_CRITICAL_METADATA}}', '').replace('{{CRITICAL_CSS}}', '').replace('{{APP}}', '').replace('{{LOADABLE_CHUNKS}}', bundleTags).replace('{{REDUX_DATA}}', isDynamicHint); // Dynamic pages always return a 200 so we can run
+      // the app and serve up all errors inside the client
 
+      response.setHeader('Surrogate-Control', `max-age=${getCacheDuration(200)}`);
       responseHandler(request, response, responseHtmlDynamic);
     } // Render the JSX server side and send response as per access method options
 
@@ -435,11 +448,6 @@ const webApp = (app, ReactApp, config) => {
         const htmlAttributes = helmet.htmlAttributes.toString();
         let title = helmet.title.toString();
         const metadata = helmet.meta.toString();
-
-        if (context.status === 404) {
-          status = 404;
-          title = '<title>404 page not found</title>';
-        }
 
         if (context.url) {
           return response.redirect(302, context.url);
@@ -461,8 +469,6 @@ const webApp = (app, ReactApp, config) => {
               allowedGroups,
               globalGroups
             });
-            response.status(status); //.json(serialisedReduxData);
-
             responseHandler(request, response, serialisedReduxData, 'json');
             return true;
           }
@@ -473,18 +479,15 @@ const webApp = (app, ReactApp, config) => {
           }
         }
 
-        if (context.status === 404) {
+        if (context.status > 400) {
           accessMethod.STATIC = true;
         } // Responses
 
 
-        let responseHTML = ''; // Static page served as a fragment
+        let responseHTML = '';
+        if (context.status === 404) title = '<title>404 page not found</title>'; // Static page served as a fragment
 
         if (accessMethod.FRAGMENT && accessMethod.STATIC) {
-          addStandardHeaders(reduxState, response, packagejson, {
-            allowedGroups,
-            globalGroups
-          });
           responseHTML = minifyCssString(styleTags) + html;
         } // Page fragment served with client scripts and redux data that hydrate the app client side
 
@@ -501,35 +504,33 @@ const webApp = (app, ReactApp, config) => {
 
         if (!accessMethod.FRAGMENT && !accessMethod.STATIC) {
           responseHTML = templateHTML.replace('{{TITLE}}', title).replace('{{SEO_CRITICAL_METADATA}}', metadata).replace('{{CRITICAL_CSS}}', styleTags).replace('{{APP}}', html).replace('{{LOADABLE_CHUNKS}}', bundleTags).replace('{{REDUX_DATA}}', serialisedReduxData);
-        }
+        } // Set response.status from React StaticRouter
 
+
+        if (typeof context.status === 'number') response.status(context.status);
         addStandardHeaders(reduxState, response, packagejson, {
           allowedGroups,
           globalGroups
         });
 
         try {
-          // If react-helmet htmlAttributes are being used, replace the html tag with those attributes sepcified e.g (lang, dir etc.)
+          // If react-helmet htmlAttributes are being used,
+          // replace the html tag with those attributes sepcified
+          // e.g. (lang, dir etc.)
           if (htmlAttributes) {
             responseHTML = responseHTML.replace(/<html?.+?>/, `<html ${htmlAttributes}>`);
           }
 
-          response.status(status); //.send(responseHTML);
-
           responseHandler(request, response, responseHTML);
         } catch (err) {
-          // eslint-disable-next-line no-console
-          console.log(err.message);
+          console.info(err.message);
         }
       }).catch(err => {
         // Handle any error that occurred in any of the previous
         // promises in the chain.
-        // eslint-disable-next-line no-console
-        console.log(err);
+        console.info(err);
         response.status(500);
-        responseHandler(request, response, `Error occurred: <br />${err.stack} <br />${JSON.stringify(err)}`); // .send(
-        //   `Error occurred: <br />${err.stack} <br />${JSON.stringify(err)}`
-        // );
+        responseHandler(request, response, `Error occurred: <br />${err.stack} <br />${JSON.stringify(err)}`);
       });
       renderToString(jsx);
       store.close();
@@ -542,9 +543,10 @@ const app = express();
 const start = (ReactApp, config, ServerFeatures) => {
   app.disable('x-powered-by'); // Output some information about the used build/startup configuration
 
-  DisplayStartupConfiguration(config); // Set-up local proxy for images from cms, to save doing rewrites and extra code
+  DisplayStartupConfiguration(config);
+  ServerFeatures(app); // Set-up local proxy for images from cms, and delivery api requests
+  // to save doing rewrites and extra code
 
-  ServerFeatures(app);
   reverseProxies(app, config.reverseProxyPaths);
   staticAssets(app, config);
   webApp(app, ReactApp, config);
