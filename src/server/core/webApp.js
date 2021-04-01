@@ -33,12 +33,12 @@ import rootSaga from '~/core/redux/sagas/index.js';
 import { matchRoutes } from 'react-router-config';
 import mapJson from 'jsonpath-mapper';
 import { replaceStaticPath } from '../util/staticPaths';
+import { getCacheDuration } from '../cacheDuration.schema';
 
 const addStandardHeaders = (state, response, packagejson, groups) => {
   if (state) {
-    /* eslint-disable no-console */
     try {
-      console.log('About to add headers');
+      console.info('About to add headers');
       const routingSurrogateKeys = state.getIn(
         ['routing', 'surrogateKeys'],
         ''
@@ -50,12 +50,13 @@ const addStandardHeaders = (state, response, packagejson, groups) => {
 
       addVarnishAuthenticationHeaders(state, response, groups);
 
-      response.setHeader('Surrogate-Control', 'max-age=3600');
+      response.setHeader(
+        'Surrogate-Control',
+        `max-age=${getCacheDuration(response.statusCode)}`
+      );
     } catch (e) {
-      console.log('Error Adding headers', e.message);
-      // console.log(e);
+      console.info('Error Adding headers', e.message);
     }
-    /* eslint-enable no-console */
   }
 };
 
@@ -65,7 +66,7 @@ const addVarnishAuthenticationHeaders = (state, response, groups = {}) => {
       const stateEntry = selectRouteEntry(state);
       const project = selectCurrentProject(state);
       const { globalGroups, allowedGroups } = groups;
-      // console.log(globalGroups, allowedGroups);
+      // console.info(globalGroups, allowedGroups);
       let allGroups = Array.from((globalGroups && globalGroups[project]) || {});
       if (
         stateEntry &&
@@ -77,8 +78,7 @@ const addVarnishAuthenticationHeaders = (state, response, groups = {}) => {
       }
       response.header('x-contensis-viewer-groups', allGroups.join('|'));
     } catch (e) {
-      // eslint-disable-next-line no-console
-      console.log('Error adding authentication header', e);
+      console.info('Error adding authentication header', e);
     }
   }
 };
@@ -92,7 +92,7 @@ const loadableBundleData = ({ stats, templates }, staticRoutePath, build) => {
       readFileSync(stats.replace('/target', build ? `/${build}` : ''))
     );
   } catch (ex) {
-    //console.log(ex);
+    //console.info(ex);
     bundle.stats = null;
   }
   try {
@@ -117,7 +117,7 @@ const loadableBundleData = ({ stats, templates }, staticRoutePath, build) => {
       ),
     };
   } catch (ex) {
-    //console.log(ex);
+    //console.info(ex);
     bundle.templates = null;
   }
   return bundle;
@@ -177,7 +177,8 @@ const webApp = (app, ReactApp, config) => {
     });
 
     const context = {};
-    let status = 200;
+    // Track the current statusCode via the response object
+    response.status(200);
 
     // Create a store (with a memory history) from our current url
     const store = createStore(
@@ -193,8 +194,7 @@ const webApp = (app, ReactApp, config) => {
       request.hostname
     );
 
-    // eslint-disable-next-line no-console
-    console.log(
+    console.info(
       `Request for ${request.path} hostname: ${request.hostname} versionStatus: ${versionStatusFromHostname}`
     );
 
@@ -287,8 +287,12 @@ const webApp = (app, ReactApp, config) => {
         .replace('{{APP}}', '')
         .replace('{{LOADABLE_CHUNKS}}', bundleTags)
         .replace('{{REDUX_DATA}}', isDynamicHint);
-      response.setHeader('Surrogate-Control', 'max-age=3600');
-      response.status(status); //.send(responseHtmlDynamic);
+      // Dynamic pages always return a 200 so we can run
+      // the app and serve up all errors inside the client
+      response.setHeader(
+        'Surrogate-Control',
+        `max-age=${getCacheDuration(200)}`
+      );
       responseHandler(request, response, responseHtmlDynamic);
     }
 
@@ -307,11 +311,6 @@ const webApp = (app, ReactApp, config) => {
           const htmlAttributes = helmet.htmlAttributes.toString();
           let title = helmet.title.toString();
           const metadata = helmet.meta.toString();
-
-          if (context.status === 404) {
-            status = 404;
-            title = '<title>404 page not found</title>';
-          }
 
           if (context.url) {
             return response.redirect(302, context.url);
@@ -337,7 +336,6 @@ const webApp = (app, ReactApp, config) => {
                 allowedGroups,
                 globalGroups,
               });
-              response.status(status); //.json(serialisedReduxData);
               responseHandler(request, response, serialisedReduxData, 'json');
               return true;
             }
@@ -348,19 +346,18 @@ const webApp = (app, ReactApp, config) => {
               serialisedReduxData = `<script>window.REDUX_DATA = ${serialisedReduxData}</script>`;
             }
           }
-          if (context.status === 404) {
+          if (context.status > 400) {
             accessMethod.STATIC = true;
           }
 
           // Responses
           let responseHTML = '';
 
+          if (context.status === 404)
+            title = '<title>404 page not found</title>';
+
           // Static page served as a fragment
           if (accessMethod.FRAGMENT && accessMethod.STATIC) {
-            addStandardHeaders(reduxState, response, packagejson, {
-              allowedGroups,
-              globalGroups,
-            });
             responseHTML = minifyCssString(styleTags) + html;
           }
 
@@ -395,39 +392,40 @@ const webApp = (app, ReactApp, config) => {
               .replace('{{LOADABLE_CHUNKS}}', bundleTags)
               .replace('{{REDUX_DATA}}', serialisedReduxData);
           }
+
+          // Set response.status from React StaticRouter
+          if (typeof context.status === 'number')
+            response.status(context.status);
+
           addStandardHeaders(reduxState, response, packagejson, {
             allowedGroups,
             globalGroups,
           });
           try {
-            // If react-helmet htmlAttributes are being used, replace the html tag with those attributes sepcified e.g (lang, dir etc.)
+            // If react-helmet htmlAttributes are being used,
+            // replace the html tag with those attributes sepcified
+            // e.g. (lang, dir etc.)
             if (htmlAttributes) {
               responseHTML = responseHTML.replace(
                 /<html?.+?>/,
                 `<html ${htmlAttributes}>`
               );
             }
-            response.status(status); //.send(responseHTML);
             responseHandler(request, response, responseHTML);
           } catch (err) {
-            // eslint-disable-next-line no-console
-            console.log(err.message);
+            console.info(err.message);
           }
         })
         .catch(err => {
           // Handle any error that occurred in any of the previous
           // promises in the chain.
-          // eslint-disable-next-line no-console
-          console.log(err);
+          console.info(err);
           response.status(500);
           responseHandler(
             request,
             response,
             `Error occurred: <br />${err.stack} <br />${JSON.stringify(err)}`
           );
-          // .send(
-          //   `Error occurred: <br />${err.stack} <br />${JSON.stringify(err)}`
-          // );
         });
       renderToString(jsx);
 
