@@ -14,13 +14,13 @@ var reactRouterDom = require('react-router-dom');
 var reactRedux = require('react-redux');
 var server = require('react-dom/server');
 var webpack = require('react-loadable/webpack');
-var styledComponents = require('styled-components');
+var styled = require('styled-components');
 var Helmet = require('react-helmet');
 var serialize = require('serialize-javascript');
 var minifyCssString = require('minify-css-string');
 var immutable = require('immutable');
 require('history');
-var App = require('./App-668b133d.js');
+var App = require('./App-d34dfa18.js');
 require('contensis-delivery-api');
 var routing = require('./routing-923fc797.js');
 require('redux');
@@ -33,7 +33,7 @@ require('query-string');
 require('@redux-saga/core/effects');
 require('loglevel');
 require('./ToJs-128064bc.js');
-require('./login-1eced75a.js');
+require('./login-b95a665e.js');
 var mapJson = require('jsonpath-mapper');
 require('await-to-js');
 require('js-cookie');
@@ -386,7 +386,7 @@ const webApp = (app, ReactApp, config) => {
 
     if (!accessMethod.DYNAMIC) {
       store.runSaga(App.rootSaga(withSagas)).toPromise().then(() => {
-        const sheet = new styledComponents.ServerStyleSheet();
+        const sheet = new styled.ServerStyleSheet();
         const html = server.renderToString(sheet.collectStyles(jsx));
         const helmet = Helmet__default['default'].renderStatic();
         Helmet__default['default'].rewind();

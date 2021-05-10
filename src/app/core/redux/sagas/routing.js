@@ -86,7 +86,7 @@ function* getRouteSaga(action) {
 
     const state = yield select();
     const routeEntry = selectRouteEntry(state);
-    // const routeNode = selectCurrentNode(state);
+    const routeNode = selectCurrentNode(state);
     const currentPath = action.path; //selectCurrentPath(state);
     const deliveryApiStatus = selectVersionStatus(state);
     const project = selectCurrentProject(state);
@@ -115,7 +115,7 @@ function* getRouteSaga(action) {
         routeEntry &&
         (!staticRoute || (staticRoute.route && staticRoute.route.fetchNode))
       ) {
-        pathNode = {};
+        pathNode = routeNode.toJS();
         pathNode.entry = entry = routeEntry.toJS();
         //Do nothing, the entry is allready the right one.
         // yield put({
@@ -222,7 +222,7 @@ function* getRouteSaga(action) {
               project
             );
             if (payload && payload.items && payload.items.length > 0) {
-              pathNode.entry = payload.items[0];
+              pathNode.entry = entry = payload.items[0];
             }
 
             if (childrenDepth > 0 || nodeOptions.children) {
